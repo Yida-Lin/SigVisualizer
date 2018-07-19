@@ -1,0 +1,1 @@
+"C:\Users\Yida Lin\AppData\Local\Programs\Python\Python37\Scripts\pyuic5.exe" -x Ui_SigVisualizer.ui -o Ui_SigVisualizer.py
