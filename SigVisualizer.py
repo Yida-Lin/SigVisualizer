@@ -1,7 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QDialog
-from PyQt5.QtGui import QPainter, QColor, QPen
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QDialog, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtGui import QIcon, QPainter, QColor, QPen
 from PyQt5.QtCore import Qt
 import random
 from math import *
@@ -17,6 +16,13 @@ class SigVisualizer(QMainWindow):
         super().__init__()
         ui = Ui_MainWindow()
         ui.setupUi(self)
+        self.setWindowTitle('Real Time Signal Visualizer')
+        
+        ui.treeWidget.setHeaderLabel('Stream')
+        item = QTreeWidgetItem(ui.treeWidget)
+        item.setText(0, 'Item 1')
+        ui.treeWidget.addTopLevelItem(item)
+
 
     # def __init__(self):
     #     super().__init__()
