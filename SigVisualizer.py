@@ -1,7 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QDialog, QTreeWidget, QTreeWidgetItem
-from PyQt5.QtGui import QIcon, QPainter, QColor, QPen
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import random
 from math import *
 import time
@@ -14,14 +14,26 @@ class SigVisualizer(QMainWindow):
     
     def __init__(self):
         super().__init__()
-        ui = Ui_MainWindow()
-        ui.setupUi(self)
-        self.setWindowTitle('Real Time Signal Visualizer')
-        
-        ui.treeWidget.setHeaderLabel('Stream')
-        item = QTreeWidgetItem(ui.treeWidget)
-        item.setText(0, 'Item 1')
-        ui.treeWidget.addTopLevelItem(item)
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(self)
+        self.setWindowTitle('Real Time Signal Visualizer')        
+        self.ui.treeWidget.setHeaderLabel('Streams')
+
+        self.ui.updateButton.clicked.connect(self.updateStreams)
+
+    def updateStreams(self):
+        # first resolve an EEG stream on the lab network
+        print("looking for an EEG stream...")
+        streams = resolve_stream('name', 'ActiChamp-0')
+
+        # create a new inlet to read from the stream
+        inlet = StreamInlet(streams[0])
+
+
+        streamName = streams[0].name()
+        item = QTreeWidgetItem(self.ui.treeWidget)
+        item.setText(0, streamName)
+        self.ui.treeWidget.addTopLevelItem(item)
 
 
     # def __init__(self):
