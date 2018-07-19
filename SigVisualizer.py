@@ -11,7 +11,12 @@ from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
 
 
-# class App(QMainWindow):
+class SigVisualizer(QMainWindow):
+    
+    def __init__(self):
+        super().__init__()
+        ui = Ui_MainWindow()
+        ui.setupUi(self)
 
     # def __init__(self):
     #     super().__init__()
@@ -104,13 +109,7 @@ from Ui_SigVisualizer import Ui_MainWindow
 #         self.update()
 
 if __name__ == '__main__':
-    # app = QApplication(sys.argv)
-    # ex = App()
-    # sys.exit(app.exec_())
-
     app = QApplication(sys.argv)
-    window = QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(window)
-    window.show()
+    window = SigVisualizer()
+    window.showMaximized()
     sys.exit(app.exec_())
