@@ -11,7 +11,8 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 
 class SigVisualizer(QMainWindow):
-    
+    panelHidden = False
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -19,7 +20,12 @@ class SigVisualizer(QMainWindow):
         self.setWindowTitle('Real Time Signal Visualizer')        
         self.ui.treeWidget.setHeaderLabel('Streams')
 
+        self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
+        self.ui.toggleButton.setIconSize(QSize(30, 30));
+
+
         self.ui.updateButton.clicked.connect(self.updateStreams)
+        self.ui.toggleButton.clicked.connect(self.togglePanel)
 
     def updateStreams(self):
         # first resolve an EEG stream on the lab network
@@ -29,11 +35,31 @@ class SigVisualizer(QMainWindow):
         # create a new inlet to read from the stream
         inlet = StreamInlet(streams[0])
 
-
         streamName = streams[0].name()
         item = QTreeWidgetItem(self.ui.treeWidget)
         item.setText(0, streamName)
+
+        for k in range(streams[0].channel_count()):
+            channelItem = QTreeWidgetItem(item)
+            channelItem.setText(0, 'Channel {}'.format(k+1))
+            channelItem.setCheckState(0, Qt.Checked)
+
         self.ui.treeWidget.addTopLevelItem(item)
+        self.ui.treeWidget.expandAll()
+
+    def togglePanel(self):
+        if self.panelHidden:
+            self.panelHidden = False
+            self.ui.treeWidget.show()
+            self.ui.updateButton.show()
+            self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
+            self.ui.toggleButton.setIconSize(QSize(30, 30));
+        else:
+            self.panelHidden = True
+            self.ui.treeWidget.hide()
+            self.ui.updateButton.hide()
+            self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_right-24px.svg"))
+            self.ui.toggleButton.setIconSize(QSize(30, 30));
 
 
     # def __init__(self):
