@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QDialog, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 import random
@@ -23,9 +23,46 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
         self.ui.toggleButton.setIconSize(QSize(30, 30));
 
-
         self.ui.updateButton.clicked.connect(self.updateStreams)
         self.ui.toggleButton.clicked.connect(self.togglePanel)
+
+    def paintEvent(self, event):
+        self.scene = QGraphicsScene(self)
+        # self.item = QGraphicsEllipseItem(-20, -10, 200, 150)
+        # self.scene.addItem(self.item)
+        x1 = 50
+        y1 = 1
+        x2 = 51
+        y2 = 1
+        # self.scene.addLine(QLineF(x1, y1, x2, y2))
+        self.ui.graphicsView.setScene(self.scene)
+        bluePen = QPen(Qt.blue)
+
+        # self.scene.addLine(QLineF(0, 200, self.ui.graphicsView.width(), 400))
+        scaling = 20
+        for k in range(self.ui.graphicsView.width() - 200):
+            for m in range(10):
+                # self.scene.addText('Channel {}'.format(m))
+                self.scene.addLine(QLineF(x1, random.randint(m * scaling, m * scaling + 50), x2, random.randint(m * scaling, m * scaling + 50)), bluePen)
+            x1 = x2
+            x2 += 1
+
+
+        # for k in range(10):
+        #     x1 += k * 10
+        #     y1 += k * 10
+        #     x2 -= k * 10
+        #     y2 -+ k * 10
+        #     self.scene.addLine(QLineF(x1, y1, x2, y2))
+
+
+
+
+
+
+
+
+
 
     def updateStreams(self):
         # first resolve an EEG stream on the lab network
