@@ -12,6 +12,7 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
+    resized = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -25,27 +26,34 @@ class SigVisualizer(QMainWindow):
 
         self.ui.updateButton.clicked.connect(self.updateStreams)
         self.ui.toggleButton.clicked.connect(self.togglePanel)
+        self.resized.connect(self.paint)
+        self.paint()
 
-    def paintEvent(self, event):
+    def resizeEvent(self, event):
+        self.resized.emit()
+        return super(SigVisualizer, self).resizeEvent(event)
+
+    def paint(self):
         self.scene = QGraphicsScene(self)
-        # self.item = QGraphicsEllipseItem(-20, -10, 200, 150)
-        # self.scene.addItem(self.item)
-        x1 = 50
-        y1 = 1
-        x2 = 51
-        y2 = 1
-        # self.scene.addLine(QLineF(x1, y1, x2, y2))
         self.ui.graphicsView.setScene(self.scene)
         self.ui.graphicsView.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         bluePen = QPen(Qt.blue)
 
-        x = 0
-        for k in range(5):
+        channelCount = 10
+        channelHeight = self.ui.graphicsView.size().width() / channelCount
+
+        for k in range(channelCount):
             text = self.scene.addText("Channel {}".format(k + 1))
             text.setDefaultTextColor(Qt.blue)
-            text.setPos(10, x);
-            x += 100
+            text.setPos(20, channelHeight * k + channelHeight / 2);
 
+
+
+
+        # x1 = 50
+        # y1 = 1
+        # x2 = 51
+        # y2 = 1
 
 
         # self.scene.addLine(QLineF(0, 200, self.ui.graphicsView.width(), 400))
