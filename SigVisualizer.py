@@ -5,14 +5,37 @@ from PyQt5.QtCore import *
 import random
 from math import *
 import time
+import threading
 import numpy as np
 from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
 
 
+class dataThread(QThread):
+    total = pyqtSignal(object)
+    update = pyqtSignal()
+    
+    def __init__(self, parent, n):
+        super(dataThread, self).__init__(parent)
+        self.n = n
+ 
+    def run(self):
+        i = 0
+        while True:
+            # if (i % 10000 == 0):
+            #     self.update.emit()
+            # i+=1
+            print('Thread')
+            time.sleep(1)
+            self.update.emit()
+
+
 class SigVisualizer(QMainWindow):
     panelHidden = False
     resized = pyqtSignal()
+    update = pyqtSignal()
+    streams = []
+    paintThread = []
 
     def __init__(self):
         super().__init__()
@@ -24,30 +47,68 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
         self.ui.toggleButton.setIconSize(QSize(30, 30));
 
+        self.scene = QGraphicsScene(self)
+        self.ui.graphicsView.setScene(self.scene)
+        self.ui.graphicsView.setAlignment(Qt.AlignLeft | Qt.AlignBaseline)
+
+        self.bluePen = QPen(Qt.blue)
+
         self.ui.updateButton.clicked.connect(self.updateStreams)
         self.ui.toggleButton.clicked.connect(self.togglePanel)
         self.resized.connect(self.paint)
-        self.paint()
+
+        self.dataTr = dataThread(self, 5)
+        self.dataTr.update.connect(self.paint)
+        self.dataTr.start()
+
+        # stop_flag = QEvent()    
+        # self.timer_thread = TimerThread(stop_flag)
+        # self.timer_thread.update.connect(self.updateStreams)
+        # self.timer_thread.start()
+
 
     def resizeEvent(self, event):
         self.resized.emit()
         return super(SigVisualizer, self).resizeEvent(event)
 
     def paint(self):
-        self.scene = QGraphicsScene(self)
-        self.ui.graphicsView.setScene(self.scene)
-        self.ui.graphicsView.setAlignment(Qt.AlignLeft | Qt.AlignBaseline)
-        bluePen = QPen(Qt.blue)
+        if self.streams:
 
-        channelCount = 10
-        channelHeight = self.ui.graphicsView.size().height() / channelCount
+            channelCount = self.streams[0].channel_count()
+            channelHeight = self.ui.graphicsView.size().height() / channelCount
 
-        for k in range(channelCount):
-            text = self.scene.addText("Channel {}".format(k + 1))
+            for k in range(channelCount):
+                text = self.scene.addText("Channel {}".format(k + 1))
+                text.setDefaultTextColor(Qt.blue)
+                text.setPos(20, channelHeight * k + channelHeight / 2);
+        else:
+            # channelCount = 10
+            # channelHeight = self.ui.graphicsView.size().height() / channelCount
+
+            text = self.scene.addText("Channel {}".format(1))
             text.setDefaultTextColor(Qt.blue)
-            text.setPos(20, channelHeight * k + channelHeight / 2);
+            text.setPos(random.randint(1, 1500), 
+            random.randint(1, 800));
+            print('Thread 2')
+
+    def paintSignals(self, idx):
+        self.scene.addLine(QLineF(idx * 5, 
+        random.randint(1, 500), idx * 5, random.randint(1, 500)), 
+        self.bluePen)
 
 
+            # chunk, timestamps = self.inlet.pull_chunk(
+            #     max_samples=self.chunkSize)
+            # if timestamps:
+            #     effectiveFS = float(len(timestamps) - 1) / (
+            #         timestamps[-1] - timestamps[0])
+            #     qp.drawText(100, self.channelCount * channelHeight 
+            #     + self.yOffset + self.yMargin, 
+            #     'Effective sampling rate: {0:.5f}Hz'.format(
+            #         round(effectiveFS, 5)))
+
+        
+        
 
 
         # x1 = 50
@@ -61,7 +122,7 @@ class SigVisualizer(QMainWindow):
         # for k in range(self.ui.graphicsView.width() - 200):
         #     for m in range(10):
         #         # self.scene.addText('Channel {}'.format(m))
-        #         self.scene.addLine(QLineF(x1, random.randint(m * scaling, m * scaling + 50), x2, random.randint(m * scaling, m * scaling + 50)), bluePen)
+        #         self.scene.addLine(QLineF(x1, random.randint(m * scaling, m * scaling + 50), x2, random.randint(m * scaling, m * scaling + 50)), self.bluePen)
         #     x1 = x2
         #     x2 += 1
 
@@ -73,26 +134,39 @@ class SigVisualizer(QMainWindow):
         #     y2 -+ k * 10
         #     self.scene.addLine(QLineF(x1, y1, x2, y2))
 
+    def updateStreamsThread(self):
+        if not self.paintThread:
+            self.paintThread = threading.Thread(
+                target=self.updateStreams, args=())
+            self.paintThread.setDaemon(True)
+            self.paintThread.start()
 
     def updateStreams(self):
         # first resolve an EEG stream on the lab network
         print("looking for an EEG stream...")
-        streams = resolve_stream('name', 'ActiChamp-0')
+        # self.streams = resolve_stream('name', 'ActiChamp-0')
 
-        # create a new inlet to read from the stream
-        inlet = StreamInlet(streams[0])
+        # # create a new inlet to read from the stream
+        # self.inlet = StreamInlet(self.streams[0])
 
-        streamName = streams[0].name()
-        item = QTreeWidgetItem(self.ui.treeWidget)
-        item.setText(0, streamName)
+        # streamName = self.streams[0].name()
+        # item = QTreeWidgetItem(self.ui.treeWidget)
+        # item.setText(0, streamName)
 
-        for k in range(streams[0].channel_count()):
-            channelItem = QTreeWidgetItem(item)
-            channelItem.setText(0, 'Channel {}'.format(k+1))
-            channelItem.setCheckState(0, Qt.Checked)
+        # for k in range(self.streams[0].channel_count()):
+        #     channelItem = QTreeWidgetItem(item)
+        #     channelItem.setText(0, 'Channel {}'.format(k+1))
+        #     channelItem.setCheckState(0, Qt.Checked)
 
-        self.ui.treeWidget.addTopLevelItem(item)
-        self.ui.treeWidget.expandAll()
+        # self.ui.treeWidget.addTopLevelItem(item)
+        # self.ui.treeWidget.expandAll()
+        
+        # for k in range(200):
+        
+        k = 0
+        while True:
+            self.paintSignals(k)
+            k = (k + 1) % 800
 
     def togglePanel(self):
         if self.panelHidden:
