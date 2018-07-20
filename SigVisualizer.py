@@ -36,11 +36,11 @@ class SigVisualizer(QMainWindow):
     def paint(self):
         self.scene = QGraphicsScene(self)
         self.ui.graphicsView.setScene(self.scene)
-        self.ui.graphicsView.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.ui.graphicsView.setAlignment(Qt.AlignLeft | Qt.AlignBaseline)
         bluePen = QPen(Qt.blue)
 
         channelCount = 10
-        channelHeight = self.ui.graphicsView.size().width() / channelCount
+        channelHeight = self.ui.graphicsView.size().height() / channelCount
 
         for k in range(channelCount):
             text = self.scene.addText("Channel {}".format(k + 1))
