@@ -27,7 +27,7 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.treeWidget.sizePolicy().hasHeightForWidth())
         self.treeWidget.setSizePolicy(sizePolicy)
-        self.treeWidget.setMaximumSize(QtCore.QSize(200, 16777215))
+        self.treeWidget.setMaximumSize(QtCore.QSize(180, 16777215))
         self.treeWidget.setObjectName("treeWidget")
         self.treeWidget.headerItem().setText(0, "1")
         self.verticalLayout.addWidget(self.treeWidget)

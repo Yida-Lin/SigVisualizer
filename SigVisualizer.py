@@ -36,16 +36,26 @@ class SigVisualizer(QMainWindow):
         y2 = 1
         # self.scene.addLine(QLineF(x1, y1, x2, y2))
         self.ui.graphicsView.setScene(self.scene)
+        self.ui.graphicsView.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         bluePen = QPen(Qt.blue)
 
+        x = 0
+        for k in range(5):
+            text = self.scene.addText("Channel {}".format(k + 1))
+            text.setDefaultTextColor(Qt.blue)
+            text.setPos(10, x);
+            x += 100
+
+
+
         # self.scene.addLine(QLineF(0, 200, self.ui.graphicsView.width(), 400))
-        scaling = 20
-        for k in range(self.ui.graphicsView.width() - 200):
-            for m in range(10):
-                # self.scene.addText('Channel {}'.format(m))
-                self.scene.addLine(QLineF(x1, random.randint(m * scaling, m * scaling + 50), x2, random.randint(m * scaling, m * scaling + 50)), bluePen)
-            x1 = x2
-            x2 += 1
+        # scaling = 20
+        # for k in range(self.ui.graphicsView.width() - 200):
+        #     for m in range(10):
+        #         # self.scene.addText('Channel {}'.format(m))
+        #         self.scene.addLine(QLineF(x1, random.randint(m * scaling, m * scaling + 50), x2, random.randint(m * scaling, m * scaling + 50)), bluePen)
+        #     x1 = x2
+        #     x2 += 1
 
 
         # for k in range(10):
@@ -54,14 +64,6 @@ class SigVisualizer(QMainWindow):
         #     x2 -= k * 10
         #     y2 -+ k * 10
         #     self.scene.addLine(QLineF(x1, y1, x2, y2))
-
-
-
-
-
-
-
-
 
 
     def updateStreams(self):
