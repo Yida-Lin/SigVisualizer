@@ -10,12 +10,8 @@ import numpy as np
 from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
 
-
 class dataThread(QThread):
     update = pyqtSignal(QRect)
-    x = 0
-    y = x + 300
-    rect = QRect(0,0, 20, 800)
     counter = 0
 
     def __init__(self, parent, rect):
@@ -24,6 +20,10 @@ class dataThread(QThread):
  
     def updateRect(self, rect):
         self.rect = rect
+
+    def updateStreams(self):
+        # first resolve an EEG stream on the lab network
+        print("looking for an EEG stream...")
 
     def run(self):
         while True:
@@ -34,11 +34,8 @@ class dataThread(QThread):
             else:
                 self.rect.translate(-1000, 0)
                 self.counter = 0
-            # self.x = (self.x + 200) % 800
-            # self.y = self.x + 300
-            # self.rect = QRect(self.x, self.x, self.y, self.y)
-            print('Paint!!')
             time.sleep(0.001)
+            print('running')
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
@@ -61,13 +58,16 @@ class SigVisualizer(QMainWindow):
 
         self.bluePen = QPen(Qt.blue)
 
-        self.ui.updateButton.clicked.connect(self.updateStreams)
+        # self.ui.updateButton.clicked.connect(self.updateStreams)
         self.ui.toggleButton.clicked.connect(self.togglePanel)
-        self.resized.connect(self.ui.widget.paint)
+        # self.resized.connect(self.ui.widget.paint)
  
         self.dataTr = dataThread(self, QRect(0, 0, 20, 800))
         self.dataTr.update.connect(self.updateRectRegion)
         self.dataTr.start()
+
+        self.ui.updateButton.clicked.connect(self.dataTr.updateStreams)
+
 
     def updateRectRegion(self, rect):
         self.ui.widget.update(rect)
@@ -78,40 +78,6 @@ class SigVisualizer(QMainWindow):
     def resizeEvent(self, event):
         self.resized.emit()
         return super(SigVisualizer, self).resizeEvent(event)
-
-    def paint(self, num = 0):
-        if self.streams:
-            channelCount = self.streams[0].channel_count()
-            channelHeight = self.ui.widget.height() / channelCount
-
-            # for k in range(channelCount):
-            #     text = self.scene.addText("Channel {}".format(k + 1))
-            #     text.setDefaultTextColor(Qt.blue)
-            #     text.setPos(20, channelHeight * k + channelHeight / 2);
-        else:
-            # channelCount = 8
-            # channelHeight = self.ui.graphicsView.size().height() / channelCount * 0.7
-
-            # newY = random.randint(1, 20)
-            # # newX = (self.x + 1) % self.ui.graphicsView.width()
-            # newX = (self.x + 1) % 500
-            # if newX != 0:
-            #     for k in range(channelCount):
-            #         if self.lines[k, newX]:
-            #             self.scene.removeItem(self.lines[k, newX])
-                    
-            #         self.lines[k, newX] = self.scene.addLine(QLineF(self.x * 5, 
-            #         self.y + k * channelHeight, newX * 5, newY + k * channelHeight), self.bluePen)
-            #     else:
-            #         print('here')
-            # self.x = newX
-            # self.y = newY
-
-            # text = self.scene.addText("Channel {}".format(1))
-            # text.setDefaultTextColor(Qt.blue)
-            # text.setPos(random.randint(1, 1500), 
-            # random.randint(1, 800));
-            print('Thread 2')
 
     def updateStreams(self):
         # first resolve an EEG stream on the lab network
