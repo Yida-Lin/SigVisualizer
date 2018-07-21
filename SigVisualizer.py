@@ -40,10 +40,6 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
         self.ui.toggleButton.setIconSize(QSize(30, 30));
 
-        self.scene = QGraphicsScene(self)
-        self.ui.graphicsView.setScene(self.scene)
-        self.ui.graphicsView.setAlignment(Qt.AlignLeft|Qt.AlignBaseline|Qt.AlignAbsolute)
-
         self.bluePen = QPen(Qt.blue)
 
         self.ui.updateButton.clicked.connect(self.updateStreams)
@@ -61,30 +57,30 @@ class SigVisualizer(QMainWindow):
     def paint(self, num = 0):
         if self.streams:
             channelCount = self.streams[0].channel_count()
-            channelHeight = self.ui.graphicsView.size().height() / channelCount
+            channelHeight = self.ui.widget.height() / channelCount
 
-            for k in range(channelCount):
-                text = self.scene.addText("Channel {}".format(k + 1))
-                text.setDefaultTextColor(Qt.blue)
-                text.setPos(20, channelHeight * k + channelHeight / 2);
+            # for k in range(channelCount):
+            #     text = self.scene.addText("Channel {}".format(k + 1))
+            #     text.setDefaultTextColor(Qt.blue)
+            #     text.setPos(20, channelHeight * k + channelHeight / 2);
         else:
-            channelCount = 8
-            channelHeight = self.ui.graphicsView.size().height() / channelCount * 0.7
+            # channelCount = 8
+            # channelHeight = self.ui.graphicsView.size().height() / channelCount * 0.7
 
-            newY = random.randint(1, 20)
-            # newX = (self.x + 1) % self.ui.graphicsView.width()
-            newX = (self.x + 1) % 500
-            if newX != 0:
-                for k in range(channelCount):
-                    if self.lines[k, newX]:
-                        self.scene.removeItem(self.lines[k, newX])
+            # newY = random.randint(1, 20)
+            # # newX = (self.x + 1) % self.ui.graphicsView.width()
+            # newX = (self.x + 1) % 500
+            # if newX != 0:
+            #     for k in range(channelCount):
+            #         if self.lines[k, newX]:
+            #             self.scene.removeItem(self.lines[k, newX])
                     
-                    self.lines[k, newX] = self.scene.addLine(QLineF(self.x * 5, 
-                    self.y + k * channelHeight, newX * 5, newY + k * channelHeight), self.bluePen)
-                else:
-                    print('here')
-            self.x = newX
-            self.y = newY
+            #         self.lines[k, newX] = self.scene.addLine(QLineF(self.x * 5, 
+            #         self.y + k * channelHeight, newX * 5, newY + k * channelHeight), self.bluePen)
+            #     else:
+            #         print('here')
+            # self.x = newX
+            # self.y = newY
 
             # text = self.scene.addText("Channel {}".format(1))
             # text.setDefaultTextColor(Qt.blue)
