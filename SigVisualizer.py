@@ -26,11 +26,9 @@ class SigVisualizer(QMainWindow):
     resized = pyqtSignal()
     update = pyqtSignal()
     streams = []
-    paintThread = []
     x = 0
     y = 0
-    lines = [None] * 500
-
+    lines = np.empty((10,500), dtype=object)
 
     def __init__(self):
         super().__init__()
@@ -44,7 +42,7 @@ class SigVisualizer(QMainWindow):
 
         self.scene = QGraphicsScene(self)
         self.ui.graphicsView.setScene(self.scene)
-        self.ui.graphicsView.setAlignment(Qt.AlignLeft|Qt.AlignBaseline)
+        self.ui.graphicsView.setAlignment(Qt.AlignLeft|Qt.AlignBaseline|Qt.AlignAbsolute)
 
         self.bluePen = QPen(Qt.blue)
 
@@ -70,20 +68,21 @@ class SigVisualizer(QMainWindow):
                 text.setDefaultTextColor(Qt.blue)
                 text.setPos(20, channelHeight * k + channelHeight / 2);
         else:
-            # channelCount = 10
-            # channelHeight = self.ui.graphicsView.size().height() / channelCount
-            newY = random.randint(1, 500)
+            channelCount = 8
+            channelHeight = self.ui.graphicsView.size().height() / channelCount * 0.7
+
+            newY = random.randint(1, 20)
             # newX = (self.x + 1) % self.ui.graphicsView.width()
             newX = (self.x + 1) % 500
-
             if newX != 0:
-                if self.lines[newX]:
-                    self.scene.removeItem(self.lines[newX])
-                
-                self.lines[newX] = self.scene.addLine(QLineF(self.x * 5, 
-                self.y, newX * 5, newY), self.bluePen)
-            else:
-                print('here')
+                for k in range(channelCount):
+                    if self.lines[k, newX]:
+                        self.scene.removeItem(self.lines[k, newX])
+                    
+                    self.lines[k, newX] = self.scene.addLine(QLineF(self.x * 5, 
+                    self.y + k * channelHeight, newX * 5, newY + k * channelHeight), self.bluePen)
+                else:
+                    print('here')
             self.x = newX
             self.y = newY
 
@@ -113,13 +112,6 @@ class SigVisualizer(QMainWindow):
         # self.ui.treeWidget.addTopLevelItem(item)
         # self.ui.treeWidget.expandAll()
         
-        # for k in range(200):
-        
-        k = 0
-        while True:
-            self.paintSignals(k)
-            k = (k + 1) % 800
-
     def togglePanel(self):
         if self.panelHidden:
             self.panelHidden = False
