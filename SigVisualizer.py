@@ -9,16 +9,23 @@ import threading
 import numpy as np
 from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
+# import functools
 
 class dataThread(QThread):
-    update = pyqtSignal()
-    
+    update = pyqtSignal(QRect)
+    x = 0
+    y = x + 300
+    rect = QRect(x, x, y, y)
+
     def __init__(self, parent):
         super(dataThread, self).__init__(parent)
  
     def run(self):
         while True:
-            self.update.emit()
+            self.update.emit(self.rect)
+            self.x = (self.x + 200) % 800
+            self.y = self.x + 300
+            self.rect = QRect(self.x, self.x, self.y, self.y)
             print('Paint!!')
             time.sleep(1)
 
@@ -45,11 +52,14 @@ class SigVisualizer(QMainWindow):
 
         self.ui.updateButton.clicked.connect(self.updateStreams)
         self.ui.toggleButton.clicked.connect(self.togglePanel)
-        self.resized.connect(self.paint)
+        self.resized.connect(self.ui.widget.paint)
  
         self.dataTr = dataThread(self)
-        self.dataTr.update.connect(self.ui.widget.update)
+        self.dataTr.update.connect(self.updateRectRegion)
         self.dataTr.start()
+
+    def updateRectRegion(self, rect):
+        self.ui.widget.update(rect)
 
     def resizeEvent(self, event):
         self.resized.emit()
