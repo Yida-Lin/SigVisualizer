@@ -12,6 +12,9 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 class PaintWidget(QWidget):
 
+    idx = 0
+    data = np.random.rand(1, 2000)
+
     def paintEvent(self, event):
         # qp = QPainter(self)
         # qbrush = QBrush(Qt.white)
@@ -26,18 +29,21 @@ class PaintWidget(QWidget):
         # painter.drawEllipse(100, 100, 500, 500)
         # painter.end()
 
-        path = QPainterPath()
-        path.addRect(20, 20, 60, 60)
+        # path = QPainterPath()
+        # path.addRect(20, 20, 60, 60)
 
-        path.moveTo(0, 0)
-        path.cubicTo(99, 0,  50, 50,  99, 99)
-        path.cubicTo(0, 99,  50, 50,  0, 0)
+        # path.moveTo(0, 0)
+        # path.cubicTo(99, 0,  50, 50,  99, 99)
+        # path.cubicTo(0, 99,  50, 50,  0, 0)
 
         painter = QPainter(self)
-        painter.fillRect(0, 0, 100, 100, Qt.white)
+        painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
         painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
                             Qt.FlatCap, Qt.MiterJoin))
         painter.setBrush(QColor(122, 163, 39))
 
-        painter.drawPath(path)
-        # self.ui.widget.update()
+        for k in range(500):
+            painter.drawLine(k * 5, random.random() * 100 + 500, (k + 1) * 5, random.random() * 100 + 500)
+
+        # painter.drawPath(path)
+        self.idx += 1

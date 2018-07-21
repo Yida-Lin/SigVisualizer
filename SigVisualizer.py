@@ -19,7 +19,8 @@ class dataThread(QThread):
     def run(self):
         while True:
             self.update.emit()
-            time.sleep(0.001)
+            print('Paint!!')
+            time.sleep(1)
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
@@ -47,7 +48,7 @@ class SigVisualizer(QMainWindow):
         self.resized.connect(self.paint)
  
         self.dataTr = dataThread(self)
-        self.dataTr.update.connect(self.paint)
+        self.dataTr.update.connect(self.ui.widget.update)
         self.dataTr.start()
 
     def resizeEvent(self, event):
