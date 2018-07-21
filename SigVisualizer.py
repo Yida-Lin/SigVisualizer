@@ -12,35 +12,14 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
     update = pyqtSignal()
-    # i = 0
     
     def __init__(self, parent):
         super(dataThread, self).__init__(parent)
  
     def run(self):
         while True:
-            # i+=1
-            # print('Thread')
             self.update.emit()
-            time.sleep(0.01)
-
-class PaintWidget(QWidget):
-
-    data = [x * 10 for x in range(10000)]
-    x = 0
-
-
-    def paintEvent(self, event):
-        qp = QPainter(self)
-        qp.setPen(Qt.blue)
-        # qp.drawText(
-        #     random.randint(20,50), random.randint(20,50), 
-        #     'Channel {}'.format(1))
-        qp.drawLine(self.x * 10, self.data[self.x], 
-        (self.x + 1) * 10, self.data[self.x+1])
-        self.x += 1
-        # self.update()
-
+            time.sleep(0.001)
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
@@ -50,7 +29,7 @@ class SigVisualizer(QMainWindow):
     paintThread = []
     x = 0
     y = 0
-    lines = [None] * 1000
+    lines = [None] * 500
 
 
     def __init__(self):
@@ -65,8 +44,7 @@ class SigVisualizer(QMainWindow):
 
         self.scene = QGraphicsScene(self)
         self.ui.graphicsView.setScene(self.scene)
-        self.ui.graphicsView.setAlignment(Qt.AlignLeft | 
-        Qt.AlignBaseline)
+        self.ui.graphicsView.setAlignment(Qt.AlignLeft|Qt.AlignBaseline)
 
         self.bluePen = QPen(Qt.blue)
 
@@ -82,8 +60,6 @@ class SigVisualizer(QMainWindow):
         self.resized.emit()
         return super(SigVisualizer, self).resizeEvent(event)
 
-
-
     def paint(self, num = 0):
         if self.streams:
             channelCount = self.streams[0].channel_count()
@@ -98,12 +74,7 @@ class SigVisualizer(QMainWindow):
             # channelHeight = self.ui.graphicsView.size().height() / channelCount
             newY = random.randint(1, 500)
             # newX = (self.x + 1) % self.ui.graphicsView.width()
-            newX = (self.x + 1) % 400
-            # qp = QPainter(self)
-            # qp.setPen(Qt.blue)
-            # qp.drawText(
-            #     random.randint(1,500), random.randint(1,500), 
-            #     'Channel {}'.format(1))
+            newX = (self.x + 1) % 500
 
             if newX != 0:
                 if self.lines[newX]:
@@ -111,21 +82,8 @@ class SigVisualizer(QMainWindow):
                 
                 self.lines[newX] = self.scene.addLine(QLineF(self.x * 5, 
                 self.y, newX * 5, newY), self.bluePen)
-                # m = PaintWidget(self.ui.graphicsView)
-                # qp.drawLine(0, 0, 1000, 1000)
-                # qp.drawText(10, 100, 'Channel {}'.format(1))
             else:
                 print('here')
-                # self.scene.removeItem(self.lines[k])
-                # self.scene.clear()
-                # rect =  QRect(0,0,500,500);
-                # painter = QPainter(self)
-                # painter.eraseRect(rect);
-                # m = PaintWidget(self.ui.graphicsView)
-
-                # qp.drawLine(1000, 1000, 0, 0)
-                # qp.drawText(10, 100, 'Channel {}'.format(2))
-
             self.x = newX
             self.y = newY
 
@@ -134,52 +92,6 @@ class SigVisualizer(QMainWindow):
             # text.setPos(random.randint(1, 1500), 
             # random.randint(1, 800));
             print('Thread 2')
-
-    def paintSignals(self, idx):
-        self.scene.addLine(QLineF(idx * 5, 
-        random.randint(1, 500), idx * 5, random.randint(1, 500)), 
-        self.bluePen)
-
-
-            # chunk, timestamps = self.inlet.pull_chunk(
-            #     max_samples=self.chunkSize)
-            # if timestamps:
-            #     effectiveFS = float(len(timestamps) - 1) / (
-            #         timestamps[-1] - timestamps[0])
-            #     qp.drawText(100, self.channelCount * channelHeight 
-            #     + self.yOffset + self.yMargin, 
-            #     'Effective sampling rate: {0:.5f}Hz'.format(
-            #         round(effectiveFS, 5)))
-
-        # x1 = 50
-        # y1 = 1
-        # x2 = 51
-        # y2 = 1
-
-
-        # self.scene.addLine(QLineF(0, 200, self.ui.graphicsView.width(), 400))
-        # scaling = 20
-        # for k in range(self.ui.graphicsView.width() - 200):
-        #     for m in range(10):
-        #         # self.scene.addText('Channel {}'.format(m))
-        #         self.scene.addLine(QLineF(x1, random.randint(m * scaling, m * scaling + 50), x2, random.randint(m * scaling, m * scaling + 50)), self.bluePen)
-        #     x1 = x2
-        #     x2 += 1
-
-
-        # for k in range(10):
-        #     x1 += k * 10
-        #     y1 += k * 10
-        #     x2 -= k * 10
-        #     y2 -+ k * 10
-        #     self.scene.addLine(QLineF(x1, y1, x2, y2))
-
-    def updateStreamsThread(self):
-        if not self.paintThread:
-            self.paintThread = threading.Thread(
-                target=self.updateStreams, args=())
-            self.paintThread.setDaemon(True)
-            self.paintThread.start()
 
     def updateStreams(self):
         # first resolve an EEG stream on the lab network
