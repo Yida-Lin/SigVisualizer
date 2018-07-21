@@ -12,7 +12,8 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
     update = pyqtSignal(QRect)
-    counter = 0
+    counter = -1
+    data = np.zeros(shape=(1, 20))
 
     def __init__(self, parent, rect):
         super(dataThread, self).__init__(parent)
@@ -28,14 +29,16 @@ class dataThread(QThread):
     def run(self):
         while True:
             self.update.emit(self.rect)
+            for k in range(self.data.shape[1]):
+                self.data[0, k] = random.randint(1, 200)
+
             if self.counter < 50:
                 self.rect.translate(20, 0)
                 self.counter += 1
             else:
                 self.rect.translate(-1000, 0)
                 self.counter = 0
-            time.sleep(0.001)
-            print('running')
+            time.sleep(0.2)
 
 class PaintWidget(QWidget):
     idx = 0
@@ -74,13 +77,18 @@ class PaintWidget(QWidget):
         # path.cubicTo(0, 99,  50, 50,  0, 0)
 
         painter = QPainter(self)
-        # painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
+        if self.dataTr.counter == -1:
+            painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
         painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
                             Qt.FlatCap, Qt.MiterJoin))
         painter.setBrush(QColor(122, 163, 39))
 
-        for k in range(500):
-            painter.drawLine(k * 5, random.random() * 100 + 500, (k + 1) * 5, random.random() * 100 + 500)
+        for k in range(self.dataTr.data.shape[1] - 1):
+            painter.drawLine(k + self.dataTr.counter * 20, 
+            self.dataTr.data[0, k] + 500,
+            k + 1 + self.dataTr.counter * 20,
+            self.dataTr.data[0, k+1] + 500)
+
 
         # painter.drawPath(path)
         self.idx += 1
