@@ -12,8 +12,11 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
     update = pyqtSignal(QRect)
+    updateStreamNames = pyqtSignal(list)
     counter = -1
     data = np.zeros(shape=(1, 20))
+    streams = []
+    streamMetadata = [None] * 2
 
     def __init__(self, parent, rect):
         super(dataThread, self).__init__(parent)
@@ -25,6 +28,20 @@ class dataThread(QThread):
     def updateStreams(self):
         # first resolve an EEG stream on the lab network
         print("looking for an EEG stream...")
+
+        if not self.streams:
+            self.streams = resolve_stream('name', 'ActiChamp-0')
+            
+            if self.streams:
+                # create a new inlet to read from the stream
+                self.inlet = StreamInlet(self.streams[0])
+
+                streamName = self.streams[0].name()
+
+                self.streamMetadata[0] = streamName
+                self.streamMetadata[1] = self.streams[0].channel_count()
+        
+                self.updateStreamNames.emit(self.streamMetadata)
 
     def run(self):
         while True:
@@ -38,7 +55,7 @@ class dataThread(QThread):
             else:
                 self.rect.translate(-1000, 0)
                 self.counter = 0
-            time.sleep(0.2)
+            time.sleep(0.002)
 
 class PaintWidget(QWidget):
     idx = 0

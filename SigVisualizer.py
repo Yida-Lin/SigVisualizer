@@ -36,34 +36,28 @@ class SigVisualizer(QMainWindow):
         # self.resized.connect(self.ui.widget.paint)
  
         self.ui.updateButton.clicked.connect(self.ui.widget.dataTr.updateStreams)
-
+        self.ui.widget.dataTr.updateStreamNames.connect(self.updateMetadataWidget)
 
     # def resizeRect(self, rect):
     #     self.ui.widget.update(rect)
 
+    def updateMetadataWidget(self, metadata):
+        item = QTreeWidgetItem(self.ui.treeWidget)
+        item.setText(0, metadata[0])
+
+        for k in range(metadata[1]):
+            channelItem = QTreeWidgetItem(item)
+            channelItem.setText(0, 'Channel {}'.format(k+1))
+            channelItem.setCheckState(0, Qt.Checked)
+
+        self.ui.treeWidget.addTopLevelItem(item)
+        self.ui.treeWidget.expandAll()
+
+
+
     def resizeEvent(self, event):
         self.resized.emit()
         return super(SigVisualizer, self).resizeEvent(event)
-
-    def updateStreams(self):
-        # first resolve an EEG stream on the lab network
-        print("looking for an EEG stream...")
-        # self.streams = resolve_stream('name', 'ActiChamp-0')
-
-        # # create a new inlet to read from the stream
-        # self.inlet = StreamInlet(self.streams[0])
-
-        # streamName = self.streams[0].name()
-        # item = QTreeWidgetItem(self.ui.treeWidget)
-        # item.setText(0, streamName)
-
-        # for k in range(self.streams[0].channel_count()):
-        #     channelItem = QTreeWidgetItem(item)
-        #     channelItem.setText(0, 'Channel {}'.format(k+1))
-        #     channelItem.setCheckState(0, Qt.Checked)
-
-        # self.ui.treeWidget.addTopLevelItem(item)
-        # self.ui.treeWidget.expandAll()
         
     def togglePanel(self):
         if self.panelHidden:
