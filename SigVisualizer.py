@@ -9,25 +9,36 @@ import threading
 import numpy as np
 from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
-# import functools
+
 
 class dataThread(QThread):
     update = pyqtSignal(QRect)
     x = 0
     y = x + 300
-    rect = QRect(x, x, y, y)
+    rect = QRect(0,0, 20, 800)
+    counter = 0
 
-    def __init__(self, parent):
+    def __init__(self, parent, rect):
         super(dataThread, self).__init__(parent)
+        self.rect = rect
  
+    def updateRect(self, rect):
+        self.rect = rect
+
     def run(self):
         while True:
             self.update.emit(self.rect)
-            self.x = (self.x + 200) % 800
-            self.y = self.x + 300
-            self.rect = QRect(self.x, self.x, self.y, self.y)
+            if self.counter < 50:
+                self.rect.translate(20, 0)
+                self.counter += 1
+            else:
+                self.rect.translate(-1000, 0)
+                self.counter = 0
+            # self.x = (self.x + 200) % 800
+            # self.y = self.x + 300
+            # self.rect = QRect(self.x, self.x, self.y, self.y)
             print('Paint!!')
-            time.sleep(1)
+            time.sleep(0.001)
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
@@ -54,12 +65,15 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.clicked.connect(self.togglePanel)
         self.resized.connect(self.ui.widget.paint)
  
-        self.dataTr = dataThread(self)
+        self.dataTr = dataThread(self, QRect(0, 0, 20, 800))
         self.dataTr.update.connect(self.updateRectRegion)
         self.dataTr.start()
 
     def updateRectRegion(self, rect):
         self.ui.widget.update(rect)
+
+    # def resizeRect(self, rect):
+    #     self.ui.widget.update(rect)
 
     def resizeEvent(self, event):
         self.resized.emit()

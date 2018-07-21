@@ -45,11 +45,6 @@ class PaintWidget(QWidget):
         pass
 
 
-
-
-
-
-
     def paintEvent(self, event):
         # qp = QPainter(self)
         # qbrush = QBrush(Qt.white)
@@ -71,31 +66,31 @@ class PaintWidget(QWidget):
         # path.cubicTo(99, 0,  50, 50,  99, 99)
         # path.cubicTo(0, 99,  50, 50,  0, 0)
 
-        # painter = QPainter(self)
-        # painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
-        # painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
-        #                     Qt.FlatCap, Qt.MiterJoin))
-        # painter.setBrush(QColor(122, 163, 39))
-
-        # for k in range(500):
-        #     painter.drawLine(k * 5, random.random() * 100 + 500, (k + 1) * 5, random.random() * 100 + 500)
-
-        # # painter.drawPath(path)
-        # self.idx += 1
-
-
-
         painter = QPainter(self)
+        # painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
+        painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
+                            Qt.FlatCap, Qt.MiterJoin))
+        painter.setBrush(QColor(122, 163, 39))
+
+        for k in range(500):
+            painter.drawLine(k * 5, random.random() * 100 + 500, (k + 1) * 5, random.random() * 100 + 500)
+
+        # painter.drawPath(path)
+        self.idx += 1
 
 
-        if self.counter == 1:
-            painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
-            # self.update(0, 0, self.width(), self.height())
-        elif self.counter % 2:
-            painter.fillRect(0, 0, 299, 299, Qt.blue) # Fill with blue color
-            # self.update(0, 0, 199, 199)
-        else:
-            painter.fillRect(0, 0, 199, 199, Qt.green) # Fill with green color
-            # self.update(0, 0, 199, 199)
 
-        self.counter += 1
+        # painter = QPainter(self)
+
+
+        # if self.counter == 1:
+        #     painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
+        #     # self.update(0, 0, self.width(), self.height())
+        # elif self.counter % 2:
+        #     painter.fillRect(0, 0, 299, 299, Qt.blue) # Fill with blue color
+        #     # self.update(0, 0, 199, 199)
+        # else:
+        #     painter.fillRect(0, 0, 199, 199, Qt.green) # Fill with green color
+        #     # self.update(0, 0, 199, 199)
+
+        # self.counter += 1
