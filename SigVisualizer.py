@@ -10,33 +10,6 @@ import numpy as np
 from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
 
-class dataThread(QThread):
-    update = pyqtSignal(QRect)
-    counter = 0
-
-    def __init__(self, parent, rect):
-        super(dataThread, self).__init__(parent)
-        self.rect = rect
- 
-    def updateRect(self, rect):
-        self.rect = rect
-
-    def updateStreams(self):
-        # first resolve an EEG stream on the lab network
-        print("looking for an EEG stream...")
-
-    def run(self):
-        while True:
-            self.update.emit(self.rect)
-            if self.counter < 50:
-                self.rect.translate(20, 0)
-                self.counter += 1
-            else:
-                self.rect.translate(-1000, 0)
-                self.counter = 0
-            time.sleep(0.001)
-            print('running')
-
 class SigVisualizer(QMainWindow):
     panelHidden = False
     resized = pyqtSignal()
@@ -62,15 +35,8 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.clicked.connect(self.togglePanel)
         # self.resized.connect(self.ui.widget.paint)
  
-        self.dataTr = dataThread(self, QRect(0, 0, 20, 800))
-        self.dataTr.update.connect(self.updateRectRegion)
-        self.dataTr.start()
+        self.ui.updateButton.clicked.connect(self.ui.widget.dataTr.updateStreams)
 
-        self.ui.updateButton.clicked.connect(self.dataTr.updateStreams)
-
-
-    def updateRectRegion(self, rect):
-        self.ui.widget.update(rect)
 
     # def resizeRect(self, rect):
     #     self.ui.widget.update(rect)
