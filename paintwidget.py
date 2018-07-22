@@ -27,9 +27,6 @@ class dataThread(QThread):
         self.rect = rect
 
     def updateStreams(self):
-        # first resolve an EEG stream on the lab network
-        print("looking for an EEG stream...")
-
         if not self.streams:
             self.streams = resolve_stream('name', 'ActiChamp-0')
             
@@ -37,20 +34,18 @@ class dataThread(QThread):
                 # create a new inlet to read from the stream
                 self.inlet = StreamInlet(self.streams[0])
 
-                streamName = self.streams[0].name()
-
-                self.streamMetadata["streamName"] = streamName
+                self.streamMetadata["streamName"] = self.streams[0].name()
                 self.streamMetadata["channelCount"] = self.streams[0].channel_count()
         
                 self.updateStreamNames.emit(self.streamMetadata)
 
     def run(self):
         while True:
-            self.update.emit(self.chunkIdx)
-
             for k in range(self.data.shape[0]):
                 for m in range(self.data.shape[1]):
                     self.data[k, m] = random.randint(1, 20)
+
+            self.update.emit(self.chunkIdx)
 
             if self.chunkIdx < self.chunksPerScreen:
                 self.chunkIdx += 1
@@ -87,7 +82,6 @@ class PaintWidget(QWidget):
         painter = QPainter(self)
         painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
                             Qt.FlatCap, Qt.MiterJoin))
-        # painter.setBrush(QColor(122, 163, 39))
 
         self.interval = self.width() / self.dataTr.chunksPerScreen / self.dataTr.data.shape[1]
 
@@ -106,6 +100,7 @@ class PaintWidget(QWidget):
 
         # painter = QPainter(self.ui.widget)
         # painter.begin(self.ui.widget)
+        # painter.setBrush(QColor(122, 163, 39))
         # painter.setRenderHint(QPainter.Antialiasing, True)
         # painter.setPen(QPen(Qt.black, 12, Qt.DashDotLine, Qt.RoundCap))
         # painter.setBrush(QBrush(Qt.green, Qt.SolidPattern))
