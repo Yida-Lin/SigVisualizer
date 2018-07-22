@@ -14,7 +14,7 @@ class dataThread(QThread):
     update = pyqtSignal(QRect)
     updateStreamNames = pyqtSignal(list)
     counter = -1
-    data = np.zeros(shape=(1, 20))
+    data = np.zeros(shape=(10, 20))
     streams = []
     streamMetadata = [None] * 2
 
@@ -46,8 +46,9 @@ class dataThread(QThread):
     def run(self):
         while True:
             self.update.emit(self.rect)
-            for k in range(self.data.shape[1]):
-                self.data[0, k] = random.randint(1, 200)
+            for k in range(self.data.shape[0]):
+                for m in range(self.data.shape[1]):
+                    self.data[k, m] = random.randint(1, 20)
 
             if self.counter < 50:
                 self.rect.translate(20, 0)
@@ -65,6 +66,11 @@ class PaintWidget(QWidget):
 
     def __init__(self, widget):
         super().__init__()
+        pal = QPalette()
+        pal.setColor(QPalette.Background, Qt.white)
+        self.setAutoFillBackground(True);
+        self.setPalette(pal)
+
         self.dataTr = dataThread(self, QRect(0, 0, 20, 800))
         self.dataTr.update.connect(self.updateRectRegion)
         self.dataTr.start()
@@ -100,12 +106,14 @@ class PaintWidget(QWidget):
                             Qt.FlatCap, Qt.MiterJoin))
         painter.setBrush(QColor(122, 163, 39))
 
-        for k in range(self.dataTr.data.shape[1] - 1):
-            painter.drawLine(k + self.dataTr.counter * 20, 
-            self.dataTr.data[0, k] + 500,
-            k + 1 + self.dataTr.counter * 20,
-            self.dataTr.data[0, k+1] + 500)
 
+        painter.fillRect(self.dataTr.counter * 20, 0, self.dataTr.counter * 20 + 20, self.height(), Qt.white)
+        for k in range(self.dataTr.data.shape[0]):
+            for m in range(self.dataTr.data.shape[1] - 1):
+                painter.drawLine(m + self.dataTr.counter * 20, 
+                self.dataTr.data[k, m] + k * 60,
+                m + 1 + self.dataTr.counter * 20,
+                self.dataTr.data[k, m+1] + k * 60)
 
         # painter.drawPath(path)
         self.idx += 1

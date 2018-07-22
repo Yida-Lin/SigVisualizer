@@ -17,13 +17,12 @@ class SigVisualizer(QMainWindow):
     streams = []
     x = 0
     y = 0
-    lines = np.empty((10,500), dtype=object)
 
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-        self.setWindowTitle('Real Time Signal Visualizer')        
+        self.setWindowTitle('Real Time Signal Visualizer')
         self.ui.treeWidget.setHeaderLabel('Streams')
 
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
@@ -51,9 +50,8 @@ class SigVisualizer(QMainWindow):
             channelItem.setCheckState(0, Qt.Checked)
 
         self.ui.treeWidget.addTopLevelItem(item)
+        self.ui.treeWidget.setAnimated(True)
         self.ui.treeWidget.expandAll()
-
-
 
     def resizeEvent(self, event):
         self.resized.emit()
