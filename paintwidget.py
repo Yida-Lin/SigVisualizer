@@ -10,11 +10,11 @@ import numpy as np
 from pylsl import StreamInlet, resolve_stream
 from Ui_SigVisualizer import Ui_MainWindow
 
-
 class dataThread(QThread):
-    update = pyqtSignal(int)
+    updateRect = pyqtSignal(int)
     updateStreamNames = pyqtSignal(dict)
-    data = np.zeros(shape=(10, 20))
+    chunkSize = 20
+    data = np.zeros(shape=(10, chunkSize))
     streams = []
     streamMetadata = {}
     chunkIdx = 0
@@ -23,9 +23,6 @@ class dataThread(QThread):
     def __init__(self, parent):
         super(dataThread, self).__init__(parent)
  
-    def updateRect(self, rect):
-        self.rect = rect
-
     def updateStreams(self):
         if not self.streams:
             self.streams = resolve_stream('name', 'ActiChamp-0')
@@ -39,13 +36,18 @@ class dataThread(QThread):
         
                 self.updateStreamNames.emit(self.streamMetadata)
 
+                # while True:
+                #     chunk, timestamps = self.inlet.pull_chunk(max_samples=self.chunkSize)
+                #     if timestamps:
+                #         print('Debug')
+
     def run(self):
         while True:
             for k in range(self.data.shape[0]):
                 for m in range(self.data.shape[1]):
                     self.data[k, m] = random.randint(1, 20)
 
-            self.update.emit(self.chunkIdx)
+            self.updateRect.emit(self.chunkIdx)
 
             if self.chunkIdx < self.chunksPerScreen:
                 self.chunkIdx += 1
@@ -66,7 +68,7 @@ class PaintWidget(QWidget):
         self.setPalette(pal)
 
         self.dataTr = dataThread(self)
-        self.dataTr.update.connect(self.updateRectRegion)
+        self.dataTr.updateRect.connect(self.updateRectRegion)
         self.dataTr.start()
 
     def updateRectRegion(self, chunkIdx):
