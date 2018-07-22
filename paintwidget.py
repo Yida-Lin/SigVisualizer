@@ -18,11 +18,10 @@ class dataThread(QThread):
     streams = []
     streamMetadata = {}
     chunkIdx = 0
+    chunksPerScreen = round(500 / chunkSize)
 
     def __init__(self, parent):
         super(dataThread, self).__init__(parent)
-        self.data = [[0 for i in range(self.chunkSize)] for j in range(10)]
-        self.chunksPerScreen = round(500 / len(self.data[0]))
  
     def updateStreams(self):
         if not self.streams:
@@ -36,31 +35,31 @@ class dataThread(QThread):
                 self.streamMetadata["channelCount"] = self.streams[0].channel_count()
         
                 self.updateStreamNames.emit(self.streamMetadata)
-
-                # while True:
-                #     chunk, timestamps = self.inlet.pull_chunk(max_samples=self.chunkSize)
-                #     if timestamps:
-                #         print('Debug')
+                self.start()
 
     def run(self):
         while True:
-            for k in range(len(self.data)):
-                for m in range(len(self.data[0])):
-                    self.data[k][m] = random.randint(1, 20)
+            if self.streams:
+                chunk, timestamps = self.inlet.pull_chunk(max_samples=self.chunkSize)
+                if timestamps:
+                    # for k in range(len(self.data)):
+                    #     for m in range(len(self.data[0])):
+                    #         self.data[k][m] = random.randint(1, 20)
 
-            self.updateRect.emit(self.chunkIdx)
-            self.sendSignalChunk.emit(self.data)
+                    self.updateRect.emit(self.chunkIdx)
+                    self.sendSignalChunk.emit(chunk)
 
-            if self.chunkIdx < self.chunksPerScreen:
-                self.chunkIdx += 1
-            else:
-                self.chunkIdx = 0
-            time.sleep(1/self.chunksPerScreen)
+                    if self.chunkIdx < self.chunksPerScreen:
+                        self.chunkIdx += 1
+                    else:
+                        self.chunkIdx = 0
+                    time.sleep(1/self.chunksPerScreen)
 
 class PaintWidget(QWidget):
     idx = 0
     channelHeight = 0
     interval = 0
+    dataBuffer = []
 
     def __init__(self, widget):
         super().__init__()
@@ -72,9 +71,8 @@ class PaintWidget(QWidget):
         self.dataTr = dataThread(self)
         self.dataTr.updateRect.connect(self.updateRectRegion)
         self.dataTr.sendSignalChunk.connect(self.getDataChunk)
-        self.dataTr.start()
+        # self.dataTr.start()
 
-        self.dataBuffer = [[0 for i in range(self.dataTr.chunkSize)] for j in range(10)]
 
     def updateRectRegion(self, chunkIdx):
         self.idx = chunkIdx
@@ -87,20 +85,23 @@ class PaintWidget(QWidget):
         self.dataBuffer = buffer
 
     def paintEvent(self, event):
-        self.channelHeight = self.height() / len(self.dataBuffer)
+        if self.dataBuffer:
+            self.channelHeight = self.height() / len(self.dataBuffer[0])
 
-        painter = QPainter(self)
-        painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
-                            Qt.FlatCap, Qt.MiterJoin))
+            painter = QPainter(self)
+            painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
+                                Qt.FlatCap, Qt.MiterJoin))
 
-        self.interval = self.width() / self.dataTr.chunksPerScreen / len(self.dataBuffer[0])
+            self.interval = self.width() / self.dataTr.chunksPerScreen / len(self.dataBuffer)
 
-        for k in range(len(self.dataBuffer)):
-            for m in range(len(self.dataBuffer[0]) - 1):
-                painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen), 
-                self.dataTr.data[k][m] + (k + 0.5) * self.channelHeight,
-                (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
-                self.dataTr.data[k][m+1] + (k + 0.5) * self.channelHeight)
+            scaling = 5
+
+            for k in range(len(self.dataBuffer[0])):
+                for m in range(len(self.dataBuffer) - 1):
+                    painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen), 
+                    self.dataBuffer[m][k] * scaling + (k + 0.5) * self.channelHeight,
+                    (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
+                    self.dataBuffer[m+1][k] * scaling + (k + 0.5) * self.channelHeight)
 
 
         # qp = QPainter(self)
