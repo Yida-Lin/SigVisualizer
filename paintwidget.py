@@ -60,6 +60,7 @@ class PaintWidget(QWidget):
     channelHeight = 0
     interval = 0
     dataBuffer = []
+    lastY = []
 
     def __init__(self, widget):
         super().__init__()
@@ -73,10 +74,9 @@ class PaintWidget(QWidget):
         self.dataTr.sendSignalChunk.connect(self.getDataChunk)
         # self.dataTr.start()
 
-
     def updateRectRegion(self, chunkIdx):
         self.idx = chunkIdx
-        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen), 
+        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen)- self.interval, 
         0,
         self.width() / self.dataTr.chunksPerScreen,
         self.height())
@@ -97,12 +97,19 @@ class PaintWidget(QWidget):
             scaling = 5
 
             for k in range(len(self.dataBuffer[0])):
+                if self.lastY:
+                    painter.drawLine(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
+                    self.lastY[k] * scaling + (k + 0.5) * self.channelHeight,
+                    self.idx * (self.width() / self.dataTr.chunksPerScreen),
+                    self.dataBuffer[0][k] * scaling + (k + 0.5) * self.channelHeight)
+
                 for m in range(len(self.dataBuffer) - 1):
                     painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen), 
                     self.dataBuffer[m][k] * scaling + (k + 0.5) * self.channelHeight,
                     (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
                     self.dataBuffer[m+1][k] * scaling + (k + 0.5) * self.channelHeight)
 
+            self.lastY = self.dataBuffer[-1]
 
         # qp = QPainter(self)
         # qbrush = QBrush(Qt.white)
