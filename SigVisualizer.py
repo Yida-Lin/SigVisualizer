@@ -26,8 +26,6 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
         self.ui.toggleButton.setIconSize(QSize(30, 30))
 
-        self.bluePen = QPen(Qt.blue)
-
         self.ui.toggleButton.clicked.connect(self.togglePanel)
         # self.resized.connect(self.ui.widget.paint) 
         self.ui.updateButton.clicked.connect(self.ui.widget.dataTr.updateStreams)
@@ -35,9 +33,9 @@ class SigVisualizer(QMainWindow):
 
     def updateMetadataWidget(self, metadata):
         item = QTreeWidgetItem(self.ui.treeWidget)
-        item.setText(0, metadata[0])
+        item.setText(0, metadata["streamName"])
 
-        for k in range(metadata[1]):
+        for k in range(metadata["channelCount"]):
             channelItem = QTreeWidgetItem(item)
             channelItem.setText(0, 'Channel {}'.format(k+1))
             channelItem.setCheckState(0, Qt.Checked)

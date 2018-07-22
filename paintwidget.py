@@ -13,10 +13,10 @@ from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
     update = pyqtSignal(int)
-    updateStreamNames = pyqtSignal(list)
+    updateStreamNames = pyqtSignal(dict)
     data = np.zeros(shape=(10, 20))
     streams = []
-    streamMetadata = [None] * 2
+    streamMetadata = {}
     chunkIdx = 0
     chunksPerScreen = 25
 
@@ -39,8 +39,8 @@ class dataThread(QThread):
 
                 streamName = self.streams[0].name()
 
-                self.streamMetadata[0] = streamName
-                self.streamMetadata[1] = self.streams[0].channel_count()
+                self.streamMetadata["streamName"] = streamName
+                self.streamMetadata["channelCount"] = self.streams[0].channel_count()
         
                 self.updateStreamNames.emit(self.streamMetadata)
 
