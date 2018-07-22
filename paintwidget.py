@@ -7,12 +7,12 @@ from math import *
 import time
 import threading
 import numpy as np
-from pylsl import StreamInlet, resolve_stream
+from pylsl import StreamInlet, resolve_stream, resolve_streams
 from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
     updateRect = pyqtSignal(int)
-    updateStreamNames = pyqtSignal(dict)
+    updateStreamNames = pyqtSignal(dict, int)
     sendSignalChunk = pyqtSignal(list)
     chunksPerScreen = 25
     chunkSize = round(500 / chunksPerScreen)
@@ -25,16 +25,26 @@ class dataThread(QThread):
  
     def updateStreams(self):
         if not self.streams:
-            self.streams = resolve_stream('name', 'ActiChamp-0')
+            self.streams = resolve_streams(wait_time=1.0)
             
             if self.streams:
-                # create a new inlet to read from the stream
-                self.inlet = StreamInlet(self.streams[0])
+                self.streamMetadata["streamName"] = []
+                self.streamMetadata["channelCount"] = []
+                self.streamMetadata["channelFormat"] = []
+                defaultIdx = 0
 
-                self.streamMetadata["streamName"] = self.streams[0].name()
-                self.streamMetadata["channelCount"] = self.streams[0].channel_count()
-        
-                self.updateStreamNames.emit(self.streamMetadata)
+                for k in range(len(self.streams)):
+                    self.streamMetadata["streamName"].append(self.streams[k].name())
+                    self.streamMetadata["channelCount"].append(self.streams[k].channel_count())
+                    self.streamMetadata["channelFormat"].append(self.streams[k].channel_format())
+
+                for k in range(len(self.streams)):
+                    if self.streams[defaultIdx].channel_format() != "String":
+                        defaultIdx = k
+                        break
+
+                self.inlet = StreamInlet(self.streams[defaultIdx])
+                self.updateStreamNames.emit(self.streamMetadata, defaultIdx)
                 self.start()
 
     def run(self):
