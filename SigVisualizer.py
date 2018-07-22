@@ -36,11 +36,11 @@ class SigVisualizer(QMainWindow):
         self.ui.widget.dataTr.updateStreamNames.connect(self.updateMetadataWidget)
 
     def updateMetadataWidget(self, metadata, defaultIdx):
-        for k in range(len(metadata["streamName"])):
+        for k in range(len(metadata)):
             item = QTreeWidgetItem(self.ui.treeWidget)
-            item.setText(0, metadata["streamName"][k])
+            item.setText(0, metadata[k]["streamName"])
 
-            for m in range(metadata["channelCount"][k]):
+            for m in range(metadata[k]["channelCount"]):
                 channelItem = QTreeWidgetItem(item)
                 channelItem.setText(0, 'Channel {}'.format(m+1))
                 channelItem.setCheckState(0, Qt.Checked)

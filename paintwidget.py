@@ -28,20 +28,17 @@ class dataThread(QThread):
             self.streams = resolve_streams(wait_time=1.0)
             
             if self.streams:
-                self.streamMetadata["streamName"] = []
-                self.streamMetadata["channelCount"] = []
-                self.streamMetadata["channelFormat"] = []
-                defaultIdx = 0
+                defaultIdx = -1
 
                 for k in range(len(self.streams)):
-                    self.streamMetadata["streamName"].append(self.streams[k].name())
-                    self.streamMetadata["channelCount"].append(self.streams[k].channel_count())
-                    self.streamMetadata["channelFormat"].append(self.streams[k].channel_format())
-
-                for k in range(len(self.streams)):
-                    if self.streams[defaultIdx].channel_format() != "String":
+                    self.streamMetadata[k] = {
+                        "streamName": self.streams[k].name(),
+                        "channelCount": self.streams[k].channel_count(),
+                        "channelFormat": self.streams[k].channel_format()
+                    }
+                    
+                    if self.streams[defaultIdx].channel_format() != "String" and defaultIdx == -1:
                         defaultIdx = k
-                        break
 
                 self.inlet = StreamInlet(self.streams[defaultIdx])
                 self.updateStreamNames.emit(self.streamMetadata, defaultIdx)
