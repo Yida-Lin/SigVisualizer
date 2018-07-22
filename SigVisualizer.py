@@ -15,8 +15,6 @@ class SigVisualizer(QMainWindow):
     resized = pyqtSignal()
     update = pyqtSignal()
     streams = []
-    x = 0
-    y = 0
 
     def __init__(self):
         super().__init__()
@@ -30,15 +28,10 @@ class SigVisualizer(QMainWindow):
 
         self.bluePen = QPen(Qt.blue)
 
-        # self.ui.updateButton.clicked.connect(self.updateStreams)
         self.ui.toggleButton.clicked.connect(self.togglePanel)
-        # self.resized.connect(self.ui.widget.paint)
- 
+        # self.resized.connect(self.ui.widget.paint) 
         self.ui.updateButton.clicked.connect(self.ui.widget.dataTr.updateStreams)
         self.ui.widget.dataTr.updateStreamNames.connect(self.updateMetadataWidget)
-
-    # def resizeRect(self, rect):
-    #     self.ui.widget.update(rect)
 
     def updateMetadataWidget(self, metadata):
         item = QTreeWidgetItem(self.ui.treeWidget)
@@ -70,6 +63,14 @@ class SigVisualizer(QMainWindow):
             self.ui.updateButton.hide()
             self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_right-24px.svg"))
             self.ui.toggleButton.setIconSize(QSize(30, 30));
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = SigVisualizer()
+    window.showMaximized()
+    sys.exit(app.exec_())
+
+
 
 
     # def __init__(self):
@@ -162,8 +163,3 @@ class SigVisualizer(QMainWindow):
 
 #         self.update()
 
-if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    window = SigVisualizer()
-    window.showMaximized()
-    sys.exit(app.exec_())
