@@ -34,7 +34,8 @@ class dataThread(QThread):
                     self.streamMetadata[k] = {
                         "streamName": self.streams[k].name(),
                         "channelCount": self.streams[k].channel_count(),
-                        "channelFormat": self.streams[k].channel_format()
+                        "channelFormat": self.streams[k].channel_format(),
+                        "nominalSrate":self.streams[k].nominal_srate()
                     }
                     
                     if self.streams[defaultIdx].channel_format() != "String" and defaultIdx == -1:
@@ -96,8 +97,10 @@ class PaintWidget(QWidget):
             self.channelHeight = self.height() / len(self.dataBuffer[0])
 
             painter = QPainter(self)
-            painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
-                                Qt.FlatCap, Qt.MiterJoin))
+            # painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
+            #                     Qt.FlatCap, Qt.MiterJoin))
+
+            painter.setPen(QPen(Qt.blue))
 
             self.interval = self.width() / self.dataTr.chunksPerScreen / len(self.dataBuffer)
 
