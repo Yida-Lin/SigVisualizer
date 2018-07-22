@@ -50,11 +50,11 @@ class dataThread(QThread):
                 for m in range(self.data.shape[1]):
                     self.data[k, m] = random.randint(1, 20)
 
-            if self.counter < 50:
+            if self.counter < 80:
                 self.rect.translate(20, 0)
                 self.counter += 1
             else:
-                self.rect.translate(-1000, 0)
+                self.rect.translate(-80 * 20, 0)
                 self.counter = 0
             time.sleep(0.002)
 
@@ -63,6 +63,7 @@ class PaintWidget(QWidget):
     # data = np.random.rand(1, 2000)
     counter = 1
     data = []
+    channelHeight = 0
 
     def __init__(self, widget):
         super().__init__()
@@ -76,7 +77,7 @@ class PaintWidget(QWidget):
         self.dataTr.start()
 
     def updateRectRegion(self, rect):
-        self.update(rect)
+        self.update(rect.x(), 0, 20, self.height())
 
     def paintEvent(self, event):
         # qp = QPainter(self)
@@ -99,24 +100,22 @@ class PaintWidget(QWidget):
         # path.cubicTo(99, 0,  50, 50,  99, 99)
         # path.cubicTo(0, 99,  50, 50,  0, 0)
 
+        self.channelHeight = self.height() / self.dataTr.data.shape[0]
+
         painter = QPainter(self)
-        if self.dataTr.counter == -1:
-            painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
         painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
                             Qt.FlatCap, Qt.MiterJoin))
         painter.setBrush(QColor(122, 163, 39))
 
-
-        painter.fillRect(self.dataTr.counter * 20, 0, self.dataTr.counter * 20 + 20, self.height(), Qt.white)
         for k in range(self.dataTr.data.shape[0]):
             for m in range(self.dataTr.data.shape[1] - 1):
                 painter.drawLine(m + self.dataTr.counter * 20, 
-                self.dataTr.data[k, m] + k * 60,
+                self.dataTr.data[k, m] + (k + 0.5) * self.channelHeight,
                 m + 1 + self.dataTr.counter * 20,
-                self.dataTr.data[k, m+1] + k * 60)
+                self.dataTr.data[k, m+1] + (k + 0.5) * self.channelHeight)
 
         # painter.drawPath(path)
-        self.idx += 1
+        # self.idx += 1
 
 
 

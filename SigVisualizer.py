@@ -26,7 +26,7 @@ class SigVisualizer(QMainWindow):
         self.ui.treeWidget.setHeaderLabel('Streams')
 
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
-        self.ui.toggleButton.setIconSize(QSize(30, 30));
+        self.ui.toggleButton.setIconSize(QSize(30, 30))
 
         self.bluePen = QPen(Qt.blue)
 
