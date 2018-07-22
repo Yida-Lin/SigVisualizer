@@ -18,7 +18,7 @@ class dataThread(QThread):
     streams = []
     streamMetadata = {}
     chunkIdx = 0
-    chunksPerScreen = 25
+    chunksPerScreen = 500 / data.shape[1]
 
     def __init__(self, parent):
         super(dataThread, self).__init__(parent)

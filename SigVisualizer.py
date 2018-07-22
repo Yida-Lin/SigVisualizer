@@ -23,6 +23,10 @@ class SigVisualizer(QMainWindow):
         self.setWindowTitle('Real Time Signal Visualizer')
         self.ui.treeWidget.setHeaderLabel('Streams')
 
+        self.statusBar = QStatusBar()
+        self.setStatusBar(self.statusBar)
+        self.statusBar.showMessage("Sampling rate: 500Hz")
+
         self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
         self.ui.toggleButton.setIconSize(QSize(30, 30))
 
