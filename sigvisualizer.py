@@ -28,15 +28,17 @@ class SigVisualizer(QMainWindow):
         self.ui.toggleButton.setIconSize(QSize(30, 30))
 
         self.ui.toggleButton.clicked.connect(self.togglePanel)
-        self.ui.updateButton.clicked.connect(self.ui.widget.dataTr.updateStreams)
-        self.ui.widget.dataTr.updateStreamNames.connect(self.updateMetadataWidget)
+        self.ui.updateButton.clicked.connect(
+            self.ui.widget.dataTr.updateStreams)
+        self.ui.widget.dataTr.updateStreamNames.connect(
+            self.updateMetadataWidget)
 
     def updateMetadataWidget(self, metadata, defaultIdx):
         for k in range(len(metadata)):
             item = QTreeWidgetItem(self.ui.treeWidget)
-            item.setText(0, metadata[k]["streamName"])
+            item.setText(0, metadata[k]["name"])
 
-            for m in range(metadata[k]["channelCount"]):
+            for m in range(metadata[k]["ch_count"]):
                 channelItem = QTreeWidgetItem(item)
                 channelItem.setText(0, 'Channel {}'.format(m+1))
                 channelItem.setCheckState(0, Qt.Checked)
@@ -45,7 +47,8 @@ class SigVisualizer(QMainWindow):
             self.ui.treeWidget.addTopLevelItem(item)
 
         self.ui.treeWidget.setAnimated(True)
-        self.statusBar.showMessage("Sampling rate: {}Hz".format(metadata[defaultIdx]["nominalSrate"]))
+        self.statusBar.showMessage(
+            "Sampling rate: {}Hz".format(metadata[defaultIdx]["srate"]))
 
     def resizeEvent(self, event):
         self.resized.emit()
@@ -57,13 +60,14 @@ class SigVisualizer(QMainWindow):
             self.ui.treeWidget.show()
             self.ui.updateButton.show()
             self.ui.toggleButton.setIcon(QIcon("icons/chevron_left.svg"))
-            self.ui.toggleButton.setIconSize(QSize(30, 30));
+            self.ui.toggleButton.setIconSize(QSize(30, 30))
         else:
             self.panelHidden = True
             self.ui.treeWidget.hide()
             self.ui.updateButton.hide()
             self.ui.toggleButton.setIcon(QIcon("icons/chevron_right.svg"))
-            self.ui.toggleButton.setIconSize(QSize(30, 30));
+            self.ui.toggleButton.setIconSize(QSize(30, 30))
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
