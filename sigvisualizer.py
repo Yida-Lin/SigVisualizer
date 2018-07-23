@@ -9,6 +9,7 @@ from ui_sigvisualizer import Ui_MainWindow
 
 
 class SigVisualizer(QMainWindow):
+    
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()

@@ -75,16 +75,17 @@ class dataThread(QThread):
                         self.chunk_idx = 0
 
 class PaintWidget(QWidget):
-    idx = 0
-    channelHeight = 0
-    interval = 0
-    dataBuffer = []
-    lastY = []
-    scaling = []
-    mean = []
 
     def __init__(self, widget):
         super().__init__()
+        self.idx = 0
+        self.channelHeight = 0
+        self.interval = 0
+        self.dataBuffer = []
+        self.lastY = []
+        self.scaling = []
+        self.mean = []
+
         pal = QPalette()
         pal.setColor(QPalette.Background, Qt.white)
         self.setAutoFillBackground(True)
@@ -92,7 +93,6 @@ class PaintWidget(QWidget):
 
         self.dataTr = dataThread(self)
         self.dataTr.sendSignalChunk.connect(self.getDataChunk)
-
 
     def getDataChunk(self, chunkIdx, buffer):
         if not self.mean:
