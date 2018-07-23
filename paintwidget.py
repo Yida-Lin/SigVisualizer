@@ -7,13 +7,13 @@ from pylsl import StreamInlet, resolve_streams
 class dataThread(QThread):
     updateStreamNames = pyqtSignal(dict, int)
     sendSignalChunk = pyqtSignal(int, list)
-    chunksPerScreen = 50
-    streams = []
-    streamMetadata = {}
-    chunkIdx = 0
 
     def __init__(self, parent):
-        super(dataThread, self).__init__(parent)
+        super().__init__(parent)
+        self.chunksPerScreen = 50
+        self.streams = []
+        self.streamMetadata = {}
+        self.chunkIdx = 0
 
     def updateStreams(self):
         if not self.streams:
