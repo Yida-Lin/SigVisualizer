@@ -46,6 +46,7 @@ class SigVisualizer(QMainWindow):
 
             item.setExpanded(True if k == defaultIdx else False)
             self.ui.treeWidget.addTopLevelItem(item)
+            
         self.ui.treeWidget.setAnimated(True)
         self.statusBar.showMessage("Sampling rate: {}Hz".format(metadata[defaultIdx]["nominalSrate"]))
 

@@ -14,7 +14,7 @@ class dataThread(QThread):
     updateRect = pyqtSignal(int)
     updateStreamNames = pyqtSignal(dict, int)
     sendSignalChunk = pyqtSignal(list)
-    chunksPerScreen = 25
+    chunksPerScreen = 50
     streams = []
     streamMetadata = {}
     chunkIdx = 0
@@ -82,7 +82,7 @@ class PaintWidget(QWidget):
 
     def updateRectRegion(self, chunkIdx):
         self.idx = chunkIdx
-        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen)- self.interval, 
+        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
         0,
         self.width() / self.dataTr.chunksPerScreen,
         self.height())
@@ -111,7 +111,7 @@ class PaintWidget(QWidget):
                     column = [row[k] for row in self.dataBuffer]
                     self.mean[k] = sum(column) / len(column)
 
-                    for m in range(len(self.dataBuffer)):
+                    for m in range(len(column)):
                         column[m] -= self.mean[k]
 
                     self.scaling[k] = self.channelHeight * 0.7 / (max(column) - min(column) + 0.0000000000001)
