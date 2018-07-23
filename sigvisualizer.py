@@ -9,11 +9,6 @@ from ui_sigvisualizer import Ui_MainWindow
 
 
 class SigVisualizer(QMainWindow):
-    panelHidden = False
-    resized = pyqtSignal()
-    update = pyqtSignal()
-    streams = []
-
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
@@ -32,6 +27,7 @@ class SigVisualizer(QMainWindow):
             self.ui.widget.dataTr.updateStreams)
         self.ui.widget.dataTr.updateStreamNames.connect(
             self.updateMetadataWidget)
+        self.panelHidden = False
 
     def updateMetadataWidget(self, metadata, defaultIdx):
         for k in range(len(metadata)):
@@ -49,10 +45,6 @@ class SigVisualizer(QMainWindow):
         self.ui.treeWidget.setAnimated(True)
         self.statusBar.showMessage(
             "Sampling rate: {}Hz".format(metadata[defaultIdx]["srate"]))
-
-    def resizeEvent(self, event):
-        self.resized.emit()
-        return super(SigVisualizer, self).resizeEvent(event)
 
     def togglePanel(self):
         if self.panelHidden:
@@ -72,5 +64,5 @@ class SigVisualizer(QMainWindow):
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = SigVisualizer()
-    window.showMaximized()
+    window.show()
     sys.exit(app.exec_())
