@@ -13,6 +13,7 @@ class dataThread(QThread):
         self.chunksPerScreen = 50
         self.streams = []
         self.chunk_idx = 0
+        self.seconds_per_screen = 3
 
     def updateStreams(self):
         if not self.streams:
@@ -35,7 +36,7 @@ class dataThread(QThread):
 
                 self.srate = int(self.streams[self.stream_idx].nominal_srate())
                 self.downSampling = False if self.srate <= 1000 else True
-                self.chunkSize = round(self.srate / self.chunksPerScreen)
+                self.chunkSize = round(self.srate / self.chunksPerScreen * self.seconds_per_screen)
 
                 if self.downSampling:
                     self.downSamplingFactor = round(self.srate / 1000)
