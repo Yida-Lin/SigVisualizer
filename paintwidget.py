@@ -27,7 +27,7 @@ class dataThread(QThread):
             self.streams = resolve_streams(wait_time=1.0)
             
             if self.streams:
-                defaultIdx = -1
+                self.defaultIdx = -1
 
                 for k in range(len(self.streams)):
                     self.streamMetadata[k] = {
@@ -37,13 +37,21 @@ class dataThread(QThread):
                         "nominalSrate":self.streams[k].nominal_srate()
                     }
                     
-                    if self.streams[k].channel_format() != "String" and defaultIdx == -1:
-                        defaultIdx = k
+                    if self.streams[k].channel_format() != "String" and self.defaultIdx == -1:
+                        self.defaultIdx = k
 
-                self.chunkSize = round(int(self.streams[defaultIdx].nominal_srate()) / self.chunksPerScreen)
+                self.nominal_srate = int(self.streams[self.defaultIdx].nominal_srate())
+                self.downSampling = False if self.nominal_srate <= 1000 else True
+                # self.visualizing_srate = self.nominal_srate if self.nominal_srate <= 1000 else round(self.nominal_srate / 10)
+                self.chunkSize = round(self.nominal_srate / self.chunksPerScreen)
 
-                self.inlet = StreamInlet(self.streams[defaultIdx])
-                self.updateStreamNames.emit(self.streamMetadata, defaultIdx)
+                if self.downSampling:
+                    self.downSamplingRatio = 10
+                    self.downSamplingBuffer = [[0 for m in range(int(self.streams[self.defaultIdx].channel_count()))] 
+                    for n in range(round(self.chunkSize/self.downSamplingRatio))]
+
+                self.inlet = StreamInlet(self.streams[self.defaultIdx])
+                self.updateStreamNames.emit(self.streamMetadata, self.defaultIdx)
                 self.start()
 
     def run(self):
@@ -51,8 +59,24 @@ class dataThread(QThread):
             while True:
                 chunk, timestamps = self.inlet.pull_chunk(max_samples=self.chunkSize, timeout=1)
                 if timestamps:
-                    self.updateRect.emit(self.chunkIdx)
-                    self.sendSignalChunk.emit(chunk)
+
+                    if self.downSampling:
+                        for k in range(int(self.streams[self.defaultIdx].channel_count())):
+                            for m in range(round(self.chunkSize/self.downSamplingRatio)):
+                                if m != round(self.chunkSize/self.downSamplingRatio):
+                                    endIdx = (m+1) * self.downSamplingRatio
+
+                                    buf = [chunk[n][k] for n in range(m * self.downSamplingRatio, endIdx)]
+                                else:
+                                    buf = [chunk[n][k] for n in range(m * self.downSamplingRatio, len(chunk))]
+
+                                self.downSamplingBuffer[m][k] = sum(buf) / len(buf)
+
+                        self.updateRect.emit(self.chunkIdx)
+                        self.sendSignalChunk.emit(self.downSamplingBuffer)
+                    else:
+                        self.updateRect.emit(self.chunkIdx)
+                        self.sendSignalChunk.emit(chunk)
 
                     if self.chunkIdx < self.chunksPerScreen:
                         self.chunkIdx += 1
