@@ -64,6 +64,8 @@ class PaintWidget(QWidget):
     interval = 0
     dataBuffer = []
     lastY = []
+    scaling = []
+    mean = []
 
     def __init__(self, widget):
         super().__init__()
@@ -85,34 +87,57 @@ class PaintWidget(QWidget):
         self.height())
 
     def getDataChunk(self, buffer):
+        if not self.mean:
+            self.mean= [0 for k in range(len(buffer[0]))]
+            self.scaling = [0 for k in range(len(buffer[0]))]
         self.dataBuffer = buffer
 
     def paintEvent(self, event):
         if self.dataBuffer:
-            self.channelHeight = self.height() / len(self.dataBuffer[0])
-
             painter = QPainter(self)
+            painter.setPen(QPen(Qt.blue))
             # painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
             #                     Qt.FlatCap, Qt.MiterJoin))
 
-            painter.setPen(QPen(Qt.blue))
-
+            self.channelHeight = self.height() / len(self.dataBuffer[0])
             self.interval = self.width() / self.dataTr.chunksPerScreen / len(self.dataBuffer)
 
-            scaling = 5
+            # ======================================================================================================
+            # Calculate Trend and Scaling
+            # ======================================================================================================
+            if self.idx == 0 or not self.mean:
+                for k in range(len(self.dataBuffer[0])):
+                    column = [row[k] for row in self.dataBuffer]
+                    self.mean[k] = sum(column) / len(column)
 
+                    for m in range(len(self.dataBuffer)):
+                        column[m] -= self.mean[k]
+
+                    self.scaling[k] = self.channelHeight * 0.7 / (max(column) - min(column) + 0.0000000000001)
+
+            # ======================================================================================================
+            # Trend Removal and Scaling 
+            # ======================================================================================================
+            for k in range(len(self.dataBuffer[0])):
+                for m in range(len(self.dataBuffer)):
+                    self.dataBuffer[m][k] -= self.mean[k]
+                    self.dataBuffer[m][k] *= self.scaling[k]
+
+            # ======================================================================================================
+            # Plot 
+            # ======================================================================================================
             for k in range(len(self.dataBuffer[0])):
                 if self.lastY:
                     painter.drawLine(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
-                    self.lastY[k] * scaling + (k + 0.5) * self.channelHeight,
+                    -self.lastY[k] + (k + 0.5) * self.channelHeight,
                     self.idx * (self.width() / self.dataTr.chunksPerScreen),
-                    self.dataBuffer[0][k] * scaling + (k + 0.5) * self.channelHeight)
+                    -self.dataBuffer[0][k] + (k + 0.5) * self.channelHeight)
 
                 for m in range(len(self.dataBuffer) - 1):
                     painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen), 
-                    self.dataBuffer[m][k] * scaling + (k + 0.5) * self.channelHeight,
+                    -self.dataBuffer[m][k] + (k + 0.5) * self.channelHeight,
                     (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
-                    self.dataBuffer[m+1][k] * scaling + (k + 0.5) * self.channelHeight)
+                    -self.dataBuffer[m+1][k] + (k + 0.5) * self.channelHeight)
 
             self.lastY = self.dataBuffer[-1]
 
