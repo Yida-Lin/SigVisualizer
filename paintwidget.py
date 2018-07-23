@@ -12,38 +12,38 @@ class dataThread(QThread):
         super().__init__(parent)
         self.chunksPerScreen = 50
         self.streams = []
-        self.streamMetadata = {}
-        self.chunkIdx = 0
+        self.metadata = {}
+        self.chunk_idx = 0
 
     def updateStreams(self):
         if not self.streams:
             self.streams = resolve_streams(wait_time=1.0)
 
             if self.streams:
-                self.defaultIdx = -1
+                self.stream_idx = -1
 
                 for k in range(len(self.streams)):
-                    self.streamMetadata[k] = {
+                    self.metadata[k] = {
                         "streamName": self.streams[k].name(),
                         "channelCount": self.streams[k].channel_count(),
                         "channelFormat": self.streams[k].channel_format(),
-                        "nominalSrate":self.streams[k].nominal_srate()
+                        "nominalSrate": self.streams[k].nominal_srate()
                     }
 
-                    if self.streams[k].channel_format() != "String" and self.defaultIdx == -1:
-                        self.defaultIdx = k
+                    if self.streams[k].channel_format() != "String" and self.stream_idx == -1:
+                        self.stream_idx = k
 
-                self.nominal_srate = int(self.streams[self.defaultIdx].nominal_srate())
+                self.nominal_srate = int(self.streams[self.stream_idx].nominal_srate())
                 self.downSampling = False if self.nominal_srate <= 1000 else True
                 self.chunkSize = round(self.nominal_srate / self.chunksPerScreen)
 
                 if self.downSampling:
                     self.downSamplingFactor = round(self.nominal_srate / 1000)
-                    self.downSamplingBuffer = [[0 for m in range(int(self.streams[self.defaultIdx].channel_count()))]
+                    self.downSamplingBuffer = [[0 for m in range(int(self.streams[self.stream_idx].channel_count()))]
                     for n in range(round(self.chunkSize/self.downSamplingFactor))]
 
-                self.inlet = StreamInlet(self.streams[self.defaultIdx])
-                self.updateStreamNames.emit(self.streamMetadata, self.defaultIdx)
+                self.inlet = StreamInlet(self.streams[self.stream_idx])
+                self.updateStreamNames.emit(self.metadata, self.stream_idx)
                 self.start()
 
     def run(self):
@@ -53,7 +53,7 @@ class dataThread(QThread):
                 if timestamps:
 
                     if self.downSampling:
-                        for k in range(int(self.streams[self.defaultIdx].channel_count())):
+                        for k in range(int(self.streams[self.stream_idx].channel_count())):
                             for m in range(round(self.chunkSize/self.downSamplingFactor)):
                                 if m != round(self.chunkSize/self.downSamplingFactor):
                                     endIdx = (m+1) * self.downSamplingFactor
@@ -64,14 +64,14 @@ class dataThread(QThread):
 
                                 self.downSamplingBuffer[m][k] = sum(buf) / len(buf)
 
-                        self.sendSignalChunk.emit(self.chunkIdx, self.downSamplingBuffer)
+                        self.sendSignalChunk.emit(self.chunk_idx, self.downSamplingBuffer)
                     else:
-                        self.sendSignalChunk.emit(self.chunkIdx, chunk)
+                        self.sendSignalChunk.emit(self.chunk_idx, chunk)
 
-                    if self.chunkIdx < self.chunksPerScreen:
-                        self.chunkIdx += 1
+                    if self.chunk_idx < self.chunksPerScreen:
+                        self.chunk_idx += 1
                     else:
-                        self.chunkIdx = 0
+                        self.chunk_idx = 0
 
 class PaintWidget(QWidget):
     idx = 0
@@ -86,7 +86,7 @@ class PaintWidget(QWidget):
         super().__init__()
         pal = QPalette()
         pal.setColor(QPalette.Background, Qt.white)
-        self.setAutoFillBackground(True);
+        self.setAutoFillBackground(True)
         self.setPalette(pal)
 
         self.dataTr = dataThread(self)
