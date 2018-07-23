@@ -2,12 +2,6 @@ import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import random
-from math import *
-import time
-import threading
-import numpy as np
-from pylsl import StreamInlet, resolve_stream
 from ui_sigvisualizer import Ui_MainWindow
 
 class SigVisualizer(QMainWindow):

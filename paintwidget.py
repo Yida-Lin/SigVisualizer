@@ -1,14 +1,8 @@
-import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from PyQt5.QtCore import *
-import random
-from math import *
-import time
-import threading
-import numpy as np
-from pylsl import StreamInlet, resolve_stream, resolve_streams
-from ui_sigvisualizer import Ui_MainWindow
+from pylsl import StreamInlet, resolve_streams
+
 
 class dataThread(QThread):
     updateStreamNames = pyqtSignal(dict, int)
