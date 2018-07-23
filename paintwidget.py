@@ -15,7 +15,6 @@ class dataThread(QThread):
     updateStreamNames = pyqtSignal(dict, int)
     sendSignalChunk = pyqtSignal(list)
     chunksPerScreen = 25
-    chunkSize = round(500 / chunksPerScreen)
     streams = []
     streamMetadata = {}
     chunkIdx = 0
@@ -38,8 +37,10 @@ class dataThread(QThread):
                         "nominalSrate":self.streams[k].nominal_srate()
                     }
                     
-                    if self.streams[defaultIdx].channel_format() != "String" and defaultIdx == -1:
+                    if self.streams[k].channel_format() != "String" and defaultIdx == -1:
                         defaultIdx = k
+
+                self.chunkSize = round(int(self.streams[defaultIdx].nominal_srate()) / self.chunksPerScreen)
 
                 self.inlet = StreamInlet(self.streams[defaultIdx])
                 self.updateStreamNames.emit(self.streamMetadata, defaultIdx)
