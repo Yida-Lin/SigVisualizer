@@ -11,9 +11,9 @@ from pylsl import StreamInlet, resolve_stream, resolve_streams
 from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
-    updateRect = pyqtSignal(int)
+    # updateRect = pyqtSignal(int)
     updateStreamNames = pyqtSignal(dict, int)
-    sendSignalChunk = pyqtSignal(list)
+    sendSignalChunk = pyqtSignal(int, list)
     chunksPerScreen = 50
     streams = []
     streamMetadata = {}
@@ -72,11 +72,11 @@ class dataThread(QThread):
 
                                 self.downSamplingBuffer[m][k] = sum(buf) / len(buf)
 
-                        self.updateRect.emit(self.chunkIdx)
-                        self.sendSignalChunk.emit(self.downSamplingBuffer)
+                        # self.updateRect.emit(self.chunkIdx)
+                        self.sendSignalChunk.emit(self.chunkIdx, self.downSamplingBuffer)
                     else:
-                        self.updateRect.emit(self.chunkIdx)
-                        self.sendSignalChunk.emit(chunk)
+                        # self.updateRect.emit(self.chunkIdx)
+                        self.sendSignalChunk.emit(self.chunkIdx, chunk)
 
                     if self.chunkIdx < self.chunksPerScreen:
                         self.chunkIdx += 1
@@ -100,7 +100,7 @@ class PaintWidget(QWidget):
         self.setPalette(pal)
 
         self.dataTr = dataThread(self)
-        self.dataTr.updateRect.connect(self.updateRectRegion)
+        # self.dataTr.updateRect.connect(self.updateRectRegion)
         self.dataTr.sendSignalChunk.connect(self.getDataChunk)
         # self.dataTr.start()
 
@@ -111,11 +111,17 @@ class PaintWidget(QWidget):
         self.width() / self.dataTr.chunksPerScreen,
         self.height())
 
-    def getDataChunk(self, buffer):
+    def getDataChunk(self, chunkIdx, buffer):
         if not self.mean:
             self.mean= [0 for k in range(len(buffer[0]))]
             self.scaling = [0 for k in range(len(buffer[0]))]
         self.dataBuffer = buffer
+
+        self.idx = chunkIdx
+        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
+        0,
+        self.width() / self.dataTr.chunksPerScreen,
+        self.height())
 
     def paintEvent(self, event):
         if self.dataBuffer:
