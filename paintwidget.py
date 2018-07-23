@@ -8,7 +8,7 @@ import time
 import threading
 import numpy as np
 from pylsl import StreamInlet, resolve_stream, resolve_streams
-from Ui_SigVisualizer import Ui_MainWindow
+from ui_sigvisualizer import Ui_MainWindow
 
 class dataThread(QThread):
     updateStreamNames = pyqtSignal(dict, int)
@@ -20,11 +20,11 @@ class dataThread(QThread):
 
     def __init__(self, parent):
         super(dataThread, self).__init__(parent)
- 
+
     def updateStreams(self):
         if not self.streams:
             self.streams = resolve_streams(wait_time=1.0)
-            
+
             if self.streams:
                 self.defaultIdx = -1
 
@@ -35,7 +35,7 @@ class dataThread(QThread):
                         "channelFormat": self.streams[k].channel_format(),
                         "nominalSrate":self.streams[k].nominal_srate()
                     }
-                    
+
                     if self.streams[k].channel_format() != "String" and self.defaultIdx == -1:
                         self.defaultIdx = k
 
@@ -45,7 +45,7 @@ class dataThread(QThread):
 
                 if self.downSampling:
                     self.downSamplingFactor = round(self.nominal_srate / 1000)
-                    self.downSamplingBuffer = [[0 for m in range(int(self.streams[self.defaultIdx].channel_count()))] 
+                    self.downSamplingBuffer = [[0 for m in range(int(self.streams[self.defaultIdx].channel_count()))]
                     for n in range(round(self.chunkSize/self.downSamplingFactor))]
 
                 self.inlet = StreamInlet(self.streams[self.defaultIdx])
@@ -106,7 +106,7 @@ class PaintWidget(QWidget):
         self.dataBuffer = buffer
 
         self.idx = chunkIdx
-        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
+        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval,
         0,
         self.width() / self.dataTr.chunksPerScreen,
         self.height())
@@ -135,7 +135,7 @@ class PaintWidget(QWidget):
                     self.scaling[k] = self.channelHeight * 0.7 / (max(column) - min(column) + 0.0000000000001)
 
             # ======================================================================================================
-            # Trend Removal and Scaling 
+            # Trend Removal and Scaling
             # ======================================================================================================
             for k in range(len(self.dataBuffer[0])):
                 for m in range(len(self.dataBuffer)):
@@ -143,17 +143,17 @@ class PaintWidget(QWidget):
                     self.dataBuffer[m][k] *= self.scaling[k]
 
             # ======================================================================================================
-            # Plot 
+            # Plot
             # ======================================================================================================
             for k in range(len(self.dataBuffer[0])):
                 if self.lastY:
-                    painter.drawLine(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
+                    painter.drawLine(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval,
                     -self.lastY[k] + (k + 0.5) * self.channelHeight,
                     self.idx * (self.width() / self.dataTr.chunksPerScreen),
                     -self.dataBuffer[0][k] + (k + 0.5) * self.channelHeight)
 
                 for m in range(len(self.dataBuffer) - 1):
-                    painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen), 
+                    painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
                     -self.dataBuffer[m][k] + (k + 0.5) * self.channelHeight,
                     (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
                     -self.dataBuffer[m+1][k] + (k + 0.5) * self.channelHeight)

@@ -8,7 +8,7 @@ import time
 import threading
 import numpy as np
 from pylsl import StreamInlet, resolve_stream
-from Ui_SigVisualizer import Ui_MainWindow
+from ui_sigvisualizer import Ui_MainWindow
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
@@ -26,11 +26,11 @@ class SigVisualizer(QMainWindow):
         self.statusBar = QStatusBar()
         self.setStatusBar(self.statusBar)
 
-        self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
+        self.ui.toggleButton.setIcon(QIcon("icons/chevron_left.svg"))
         self.ui.toggleButton.setIconSize(QSize(30, 30))
 
         self.ui.toggleButton.clicked.connect(self.togglePanel)
-        # self.resized.connect(self.ui.widget.paint) 
+        # self.resized.connect(self.ui.widget.paint)
         self.ui.updateButton.clicked.connect(self.ui.widget.dataTr.updateStreams)
         self.ui.widget.dataTr.updateStreamNames.connect(self.updateMetadataWidget)
 
@@ -46,26 +46,26 @@ class SigVisualizer(QMainWindow):
 
             item.setExpanded(True if k == defaultIdx else False)
             self.ui.treeWidget.addTopLevelItem(item)
-            
+
         self.ui.treeWidget.setAnimated(True)
         self.statusBar.showMessage("Sampling rate: {}Hz".format(metadata[defaultIdx]["nominalSrate"]))
 
     def resizeEvent(self, event):
         self.resized.emit()
         return super(SigVisualizer, self).resizeEvent(event)
-        
+
     def togglePanel(self):
         if self.panelHidden:
             self.panelHidden = False
             self.ui.treeWidget.show()
             self.ui.updateButton.show()
-            self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_left-24px.svg"))
+            self.ui.toggleButton.setIcon(QIcon("icons/chevron_left.svg"))
             self.ui.toggleButton.setIconSize(QSize(30, 30));
         else:
             self.panelHidden = True
             self.ui.treeWidget.hide()
             self.ui.updateButton.hide()
-            self.ui.toggleButton.setIcon(QIcon("icons/baseline-chevron_right-24px.svg"))
+            self.ui.toggleButton.setIcon(QIcon("icons/chevron_right.svg"))
             self.ui.toggleButton.setIconSize(QSize(30, 30));
 
 if __name__ == '__main__':
@@ -140,7 +140,7 @@ if __name__ == '__main__':
 #         chunk, timestamps = self.inlet.pull_chunk(max_samples=self.chunkSize)
 #         if timestamps:
 #             effectiveFS = float(len(timestamps) - 1) / (timestamps[-1] - timestamps[0])
-#             qp.drawText(100, self.channelCount * channelHeight + self.yOffset + self.yMargin, 
+#             qp.drawText(100, self.channelCount * channelHeight + self.yOffset + self.yMargin,
 #             'Effective sampling rate: {0:.5f}Hz'.format(round(effectiveFS, 5)))
 
 #             if self.idx == 0:
@@ -153,16 +153,16 @@ if __name__ == '__main__':
 #             for c in range(len(timestamps)):
 #                 for m in range(self.channelCount):
 #                     self.dataBuffer[m, self.idx] = (chunk[c][m] - self.trend[m]) * self.yScaling[m]
-                
+
 #                 self.idx = (self.idx + 1) % self.samplesPerScreen
 
 #         for m in range(self.channelCount):
 #             qp.drawText(10, m * channelHeight + self.yOffset + self.yMargin, 'Channel {}'.format(m+1))
 
 #             for k in range(self.dataBuffer.shape[1]-1):
-#                 qp.drawLine(k * self.xScaling + self.xMargin, 
-#                 (-1) * self.dataBuffer[m, k] + m * channelHeight + self.yOffset / 2 + self.yMargin, 
-#                 (k+1)* self.xScaling + self.xMargin, 
+#                 qp.drawLine(k * self.xScaling + self.xMargin,
+#                 (-1) * self.dataBuffer[m, k] + m * channelHeight + self.yOffset / 2 + self.yMargin,
+#                 (k+1)* self.xScaling + self.xMargin,
 #                 (-1) * self.dataBuffer[m, k+1] + m * channelHeight + self.yOffset / 2 + self.yMargin)
 
 #         self.update()
