@@ -109,8 +109,6 @@ class PaintWidget(QWidget):
         if self.dataBuffer:
             painter = QPainter(self)
             painter.setPen(QPen(Qt.blue))
-            # painter.setPen(QPen(QColor(79, 106, 25), 1, Qt.SolidLine,
-            #                     Qt.FlatCap, Qt.MiterJoin))
 
             self.channelHeight = self.height() / len(self.dataBuffer[0])
             self.interval = self.width() / self.dataTr.chunksPerScreen / len(self.dataBuffer)
@@ -153,44 +151,3 @@ class PaintWidget(QWidget):
                     -self.dataBuffer[m+1][k] + (k + 0.5) * self.channelHeight)
 
             self.lastY = self.dataBuffer[-1]
-
-        # qp = QPainter(self)
-        # qbrush = QBrush(Qt.white)
-        # qp.setBackground(qbrush)
-        # qp.drawLine(100,100,500,500)
-
-        # painter = QPainter(self.ui.widget)
-        # painter.begin(self.ui.widget)
-        # painter.setBrush(QColor(122, 163, 39))
-        # painter.setRenderHint(QPainter.Antialiasing, True)
-        # painter.setPen(QPen(Qt.black, 12, Qt.DashDotLine, Qt.RoundCap))
-        # painter.setBrush(QBrush(Qt.green, Qt.SolidPattern))
-        # painter.drawEllipse(100, 100, 500, 500)
-        # painter.end()
-
-        # path = QPainterPath()
-        # path.addRect(20, 20, 60, 60)
-
-        # path.moveTo(0, 0)
-        # path.cubicTo(99, 0,  50, 50,  99, 99)
-        # path.cubicTo(0, 99,  50, 50,  0, 0)
-
-
-        # painter.drawPath(path)
-
-
-
-        # painter = QPainter(self)
-
-
-        # if self.counter == 1:
-        #     painter.fillRect(0, 0, self.width(), self.height(), Qt.white)
-        #     # self.update(0, 0, self.width(), self.height())
-        # elif self.counter % 2:
-        #     painter.fillRect(0, 0, 299, 299, Qt.blue) # Fill with blue color
-        #     # self.update(0, 0, 199, 199)
-        # else:
-        #     painter.fillRect(0, 0, 199, 199, Qt.green) # Fill with green color
-        #     # self.update(0, 0, 199, 199)
-
-        # self.counter += 1
