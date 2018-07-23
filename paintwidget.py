@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+from PyQt5.QtCore import QThread, Qt, pyqtSignal
+from PyQt5.QtGui import QPalette, QPainter, QPen
+from PyQt5.QtWidgets import QWidget
 from pylsl import StreamInlet, resolve_streams
 
 

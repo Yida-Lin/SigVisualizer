@@ -1,8 +1,12 @@
 import sys
-from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
-from PyQt5.QtCore import *
+
+from PyQt5.QtCore import QSize, pyqtSignal
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QStatusBar,
+                             QTreeWidgetItem)
+
 from ui_sigvisualizer import Ui_MainWindow
+
 
 class SigVisualizer(QMainWindow):
     panelHidden = False
