@@ -24,21 +24,21 @@ class dataThread(QThread):
 
                 for k in range(len(self.streams)):
                     self.metadata[k] = {
-                        "streamName": self.streams[k].name(),
-                        "channelCount": self.streams[k].channel_count(),
-                        "channelFormat": self.streams[k].channel_format(),
-                        "nominalSrate": self.streams[k].nominal_srate()
+                        "name": self.streams[k].name(),
+                        "ch_count": self.streams[k].channel_count(),
+                        "ch_format": self.streams[k].channel_format(),
+                        "srate": self.streams[k].nominal_srate()
                     }
 
                     if self.streams[k].channel_format() != "String" and self.stream_idx == -1:
                         self.stream_idx = k
 
-                self.nominal_srate = int(self.streams[self.stream_idx].nominal_srate())
-                self.downSampling = False if self.nominal_srate <= 1000 else True
-                self.chunkSize = round(self.nominal_srate / self.chunksPerScreen)
+                self.srate = int(self.streams[self.stream_idx].nominal_srate())
+                self.downSampling = False if self.srate <= 1000 else True
+                self.chunkSize = round(self.srate / self.chunksPerScreen)
 
                 if self.downSampling:
-                    self.downSamplingFactor = round(self.nominal_srate / 1000)
+                    self.downSamplingFactor = round(self.srate / 1000)
                     self.downSamplingBuffer = [[0 for m in range(int(self.streams[self.stream_idx].channel_count()))]
                     for n in range(round(self.chunkSize/self.downSamplingFactor))]
 
