@@ -11,7 +11,6 @@ from pylsl import StreamInlet, resolve_stream, resolve_streams
 from Ui_SigVisualizer import Ui_MainWindow
 
 class dataThread(QThread):
-    # updateRect = pyqtSignal(int)
     updateStreamNames = pyqtSignal(dict, int)
     sendSignalChunk = pyqtSignal(int, list)
     chunksPerScreen = 50
@@ -42,7 +41,6 @@ class dataThread(QThread):
 
                 self.nominal_srate = int(self.streams[self.defaultIdx].nominal_srate())
                 self.downSampling = False if self.nominal_srate <= 1000 else True
-                # self.visualizing_srate = self.nominal_srate if self.nominal_srate <= 1000 else round(self.nominal_srate / 10)
                 self.chunkSize = round(self.nominal_srate / self.chunksPerScreen)
 
                 if self.downSampling:
@@ -72,10 +70,8 @@ class dataThread(QThread):
 
                                 self.downSamplingBuffer[m][k] = sum(buf) / len(buf)
 
-                        # self.updateRect.emit(self.chunkIdx)
                         self.sendSignalChunk.emit(self.chunkIdx, self.downSamplingBuffer)
                     else:
-                        # self.updateRect.emit(self.chunkIdx)
                         self.sendSignalChunk.emit(self.chunkIdx, chunk)
 
                     if self.chunkIdx < self.chunksPerScreen:
@@ -100,16 +96,8 @@ class PaintWidget(QWidget):
         self.setPalette(pal)
 
         self.dataTr = dataThread(self)
-        # self.dataTr.updateRect.connect(self.updateRectRegion)
         self.dataTr.sendSignalChunk.connect(self.getDataChunk)
-        # self.dataTr.start()
 
-    def updateRectRegion(self, chunkIdx):
-        self.idx = chunkIdx
-        self.update(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval, 
-        0,
-        self.width() / self.dataTr.chunksPerScreen,
-        self.height())
 
     def getDataChunk(self, chunkIdx, buffer):
         if not self.mean:
