@@ -5,14 +5,13 @@ from pylsl import StreamInlet, resolve_streams
 
 
 class dataThread(QThread):
-    updateStreamNames = pyqtSignal(dict, int)
+    updateStreamNames = pyqtSignal(list, int)
     sendSignalChunk = pyqtSignal(int, list)
 
     def __init__(self, parent):
         super().__init__(parent)
         self.chunksPerScreen = 50
         self.streams = []
-        self.metadata = {}
         self.chunk_idx = 0
 
     def updateStreams(self):
@@ -21,6 +20,7 @@ class dataThread(QThread):
 
             if self.streams:
                 self.stream_idx = -1
+                self.metadata = [None] * len(self.streams) 
 
                 for k in range(len(self.streams)):
                     self.metadata[k] = {
