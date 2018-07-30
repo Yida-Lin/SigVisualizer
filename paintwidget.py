@@ -2,7 +2,7 @@ from PyQt5.QtCore import QThread, Qt, pyqtSignal
 from PyQt5.QtGui import QPalette, QPainter, QPen
 from PyQt5.QtWidgets import QWidget
 from pylsl import StreamInlet, resolve_streams
-
+import math
 
 class dataThread(QThread):
     updateStreamNames = pyqtSignal(list, int)
@@ -13,7 +13,7 @@ class dataThread(QThread):
         self.chunksPerScreen = 50
         self.streams = []
         self.chunk_idx = 0
-        self.seconds_per_screen = 3
+        self.seconds_per_screen = 2
 
     def updateStreams(self):
         if not self.streams:
@@ -140,15 +140,17 @@ class PaintWidget(QWidget):
             # ======================================================================================================
             for k in range(len(self.dataBuffer[0])):
                 if self.lastY:
-                    painter.drawLine(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval,
-                    -self.lastY[k] + (k + 0.5) * self.channelHeight,
-                    self.idx * (self.width() / self.dataTr.chunksPerScreen),
-                    -self.dataBuffer[0][k] + (k + 0.5) * self.channelHeight)
+                    if not math.isnan(self.lastY[k]) and not math.isnan(self.dataBuffer[0][k]):
+                        painter.drawLine(self.idx * (self.width() / self.dataTr.chunksPerScreen) - self.interval,
+                        -self.lastY[k] + (k + 0.5) * self.channelHeight,
+                        self.idx * (self.width() / self.dataTr.chunksPerScreen),
+                        -self.dataBuffer[0][k] + (k + 0.5) * self.channelHeight)
 
                 for m in range(len(self.dataBuffer) - 1):
-                    painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
-                    -self.dataBuffer[m][k] + (k + 0.5) * self.channelHeight,
-                    (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
-                    -self.dataBuffer[m+1][k] + (k + 0.5) * self.channelHeight)
+                    if not math.isnan(self.dataBuffer[m][k]) and not math.isnan(self.dataBuffer[m+1][k]):
+                        painter.drawLine(m * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
+                        -self.dataBuffer[m][k] + (k + 0.5) * self.channelHeight,
+                        (m + 1) * self.interval + self.idx * (self.width() / self.dataTr.chunksPerScreen),
+                        -self.dataBuffer[m+1][k] + (k + 0.5) * self.channelHeight)
 
             self.lastY = self.dataBuffer[-1]
