@@ -56,13 +56,8 @@ class dataThread(QThread):
                     if self.downSampling:
                         for k in range(int(self.streams[self.stream_idx].channel_count())):
                             for m in range(round(self.chunkSize/self.downSamplingFactor)):
-                                if m != round(self.chunkSize/self.downSamplingFactor):
-                                    endIdx = (m+1) * self.downSamplingFactor
-
-                                    buf = [chunk[n][k] for n in range(m * self.downSamplingFactor, endIdx)]
-                                else:
-                                    buf = [chunk[n][k] for n in range(m * self.downSamplingFactor, len(chunk))]
-
+                                endIdx = min((m+1) * self.downSamplingFactor, len(chunk))
+                                buf = [chunk[n][k] for n in range(m * self.downSamplingFactor, endIdx)]
                                 self.downSamplingBuffer[m][k] = sum(buf) / len(buf)
 
                         self.sendSignalChunk.emit(self.chunk_idx, self.downSamplingBuffer)
