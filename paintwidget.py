@@ -18,6 +18,8 @@ class DataThread(QThread):
                         'downSampling': None, 'downSamplingFactor': None, 'downSamplingBuffer': None,
                         'inlet': None, 'stream_idx': None, 'is_marker': False}
 
+    DOWN_SAMPLING_THRESHOLD = 1024
+
     def __init__(self, parent):
         super().__init__(parent)
         self.chunksPerScreen = 50  # For known sampling rate data, divide the screen into this many segments.
@@ -55,7 +57,7 @@ class DataThread(QThread):
                     if self.sig_strm_idx < 0:
                         self.sig_strm_idx = k
                     srate = stream.nominal_srate()
-                    stream_params['downSampling'] = srate > 1000
+                    stream_params['downSampling'] = srate > DOWN_SAMPLING_THRESHOLD
                     stream_params['chunkSize'] = round(srate / self.chunksPerScreen * self.seconds_per_screen)
                     if stream_params['downSampling']:
                         stream_params['downSamplingFactor'] = round(srate / 1000)
